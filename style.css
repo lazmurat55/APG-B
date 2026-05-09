@@ -1,0 +1,104 @@
+body{
+    background:#f1f5f9;
+    font-family:Arial;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    max-width:700px;
+    margin:auto;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h1{
+    color:#1a2a5e;
+}
+
+h2{
+    color:#1a2a5e;
+    margin-top:30px;
+}
+
+p{
+    color:gray;
+}
+
+label{
+    display:block;
+    margin-top:20px;
+    margin-bottom:10px;
+    font-weight:bold;
+}
+
+select,
+input{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.ft-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    background:#f8fafc;
+    padding:15px;
+    border-radius:15px;
+}
+
+.ft-grid label{
+    margin:0;
+}
+
+#ftBox{
+    display:none;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#1a2a5e;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.artikel-box,
+.stoerung-box,
+.worker-box{
+    background:#f8fafc;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+}
+
+.delete-btn{
+    width:40px;
+    height:40px;
+    background:#ef4444;
+    margin-top:0;
+    margin-left:auto;
+    display:block;
+}
+
+hr{
+    margin-top:30px;
+    margin-bottom:30px;
+    border:none;
+    border-top:1px solid #e2e8f0;
+}
