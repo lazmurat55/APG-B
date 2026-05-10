@@ -1,5 +1,5 @@
 {
-  "name": "Schicht B - Adler Pelzer",
+  "name": "Schicht B - Adler Pelzer Group",
   "short_name": "SchichtB",
   "description": "Adler Pelzer Group Üretim Takip Sistemi",
   "start_url": "./index.html",
@@ -9,14 +9,14 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192/ffffff/1a2a5e?text=AP",
+      "src": "APG.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "https://via.placeholder.com/512/ffffff/1a2a5e?text=AP",
+      "src": "APG.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
