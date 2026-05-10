@@ -1,6 +1,6 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbyAM5y2pNFzIvmZDJuSotQkp5i1hvCKOp5jKcRIW9yho1daGyKoh9XkmiDBfj2Wqik8yQ/exec"; 
 
-// --- LOGIN KONTROLÜ (Beni Hatırla Mantığı) ---
+// --- LOGIN KONTROLÜ ---
 window.onload = function() {
     const savedUser = localStorage.getItem("schichtb_user");
     const savedPass = localStorage.getItem("schichtb_pass");
@@ -30,7 +30,7 @@ async function loginKontrol() {
     } catch (e) { alert("Verbindungsfehler!"); }
 }
 
-// --- FORM ELEMENTLERİ VE LİSTELER ---
+// --- FORM ELEMENTLERİ ---
 const datumInput = document.getElementById("datum");
 if (datumInput) { datumInput.value = new Date().toISOString().split("T")[0]; }
 
@@ -70,19 +70,44 @@ addWorkerBtn.addEventListener("click", () => {
 
 addArtikelBtn.addEventListener("click", () => {
     if(!anlage.value) return alert("Bitte zuerst Anlage wählen");
-    let codes = anlage.value.startsWith("PUR") ? purCodes : (anlage.value === "CIM1" ? cimCodes : imCodes);
-    let options = codes.map(c => `<option>${c}</option>`).join("");
+    
+    const isCompound = (anlage.value === "COM");
+    const unit = isCompound ? "Kg" : "Gutteile";
+    
+    let options = "";
+    if (!isCompound) {
+        let codes = anlage.value.startsWith("PUR") ? purCodes : (anlage.value === "CIM1" ? cimCodes : imCodes);
+        options = codes.map(c => `<option>${c}</option>`).join("");
+    }
+
     const box = document.createElement("div");
     box.classList.add("artikel-box");
-    box.innerHTML = `<button class="delete-btn">X</button><label>Artikelnummer</label><input class="artikelnummerInput" type="text"><div class="grid"><div><label>Gutteile</label><input class="gutteileInput" type="number"></div><div><label>Ausschuss</label><input class="ausschussGesamt" type="number"></div></div><div class="fehlerBox" style="display:none;"><div class="fehlerContainer"></div><button class="addFehlerBtn" type="button">+ Fehlercode</button></div>`;
+    box.innerHTML = `
+        <button class="delete-btn">X</button>
+        <label>Artikelnummer</label>
+        <input class="artikelnummerInput" type="text" placeholder="Örn: 15A/01">
+        <div class="grid">
+            <div><label>${unit}</label><input class="gutteileInput" type="number"></div>
+            <div><label>Ausschuss (${isCompound ? 'Kg' : 'Stk'})</label><input class="ausschussGesamt" type="number"></div>
+        </div>
+        <div class="fehlerBox" style="display:none;">
+            <div class="fehlerContainer"></div>
+            <button class="addFehlerBtn" type="button">+ Fehler ${isCompound ? '(Manuell)' : '(Codes)'}</button>
+        </div>`;
+        
     artikelContainer.appendChild(box);
     const ausschuss = box.querySelector(".ausschussGesamt");
     const fehlerBox = box.querySelector(".fehlerBox");
     ausschuss.addEventListener("input", () => fehlerBox.style.display = ausschuss.value > 0 ? "block" : "none");
+
     box.querySelector(".addFehlerBtn").addEventListener("click", () => {
         const row = document.createElement("div");
         row.classList.add("grid"); row.style.marginTop = "10px";
-        row.innerHTML = `<div><select class="fehlerSelect">${options}</select></div><div><input class="fehlerMenge" type="number" placeholder="Anzahl"></div>`;
+        const fehlerInput = isCompound 
+            ? `<input class="fehlerSelect" type="text" placeholder="Fehlergrund">` 
+            : `<select class="fehlerSelect">${options}</select>`;
+            
+        row.innerHTML = `<div>${fehlerInput}</div><div><input class="fehlerMenge" type="number" placeholder="${isCompound ? 'Kg' : 'Anzahl'}"></div>`;
         box.querySelector(".fehlerContainer").appendChild(row);
     });
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
@@ -91,6 +116,7 @@ addArtikelBtn.addEventListener("click", () => {
 addStoerungBtn.addEventListener("click", () => {
     const box = document.createElement("div");
     box.classList.add("stoerung-box");
+    
     if(anlage.value.startsWith("PUR")){
         let opts = stoerungCodes.map(c => `<option>${c}</option>`).join("");
         box.innerHTML = `<button class="delete-btn">X</button><label>Störungscode</label><select class="stoerung-select">${opts}</select><input class="extra-stoerung" type="text" style="display:none; margin-top:10px;"><label>Dauer (Min)</label><input class="stoerungZeit" type="number">`;
@@ -98,22 +124,24 @@ addStoerungBtn.addEventListener("click", () => {
         const extra = box.querySelector(".extra-stoerung");
         sel.addEventListener("change", () => extra.style.display = sel.value === "Sonstige" ? "block" : "none");
     } else {
-        box.innerHTML = `<button class="delete-btn">X</button><label>Störung</label><input class="stoerungText" type="text"><label>Dauer (Min)</label><input class="stoerungZeit" type="number">`;
+        box.innerHTML = `
+            <button class="delete-btn">X</button>
+            <label>Störung (Grund eingeben)</label>
+            <input class="stoerungText" type="text" placeholder="Was ist passiert?">
+            <label>Dauer (Minuten)</label>
+            <input class="stoerungZeit" type="number">`;
     }
     stoerungContainer.appendChild(box);
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
 });
 
-// ANA KAYIT VE WHATSAPP
 async function speichern() {
     const user = localStorage.getItem("schichtb_user");
     const pass = localStorage.getItem("schichtb_pass");
-    
     const check = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
     const status = await check.text();
-    
     if (status !== "active") {
-        alert("Sitzung abgelaufen veya Yetki iptal edildi!");
+        alert("Sitzung abgelaufen!");
         localStorage.clear();
         location.reload();
         return;
@@ -132,9 +160,16 @@ async function speichern() {
     
     let artikelText = "";
     document.querySelectorAll(".artikel-box").forEach(box => {
-        artikelText += `• Art: ${box.querySelector(".artikelnummerInput").value} | G: ${box.querySelector(".gutteileInput").value} | A: ${box.querySelector(".ausschussGesamt").value}\n`;
+        const artNum = box.querySelector(".artikelnummerInput").value;
+        const gut = box.querySelector(".gutteileInput").value;
+        const aus = box.querySelector(".ausschussGesamt").value;
+        const unit = (anlage.value === "COM") ? "Kg" : "Stk";
+        
+        artikelText += `• Art: ${artNum} | G: ${gut}${unit} | A: ${aus}${unit}\n`;
         box.querySelectorAll(".fehlerContainer .grid").forEach(row => {
-            artikelText += `  └─ ${row.querySelector(".fehlerSelect").value}: ${row.querySelector(".fehlerMenge").value}\n`;
+            const fSel = row.querySelector(".fehlerSelect").value;
+            const fMen = row.querySelector(".fehlerMenge").value;
+            artikelText += `  └─ ${fSel}: ${fMen}${unit}\n`;
         });
     });
 
