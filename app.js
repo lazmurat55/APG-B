@@ -85,7 +85,7 @@ addArtikelBtn.addEventListener("click", () => {
     box.innerHTML = `
         <button class="delete-btn">X</button>
         <label>Artikelnummer</label>
-        <input class="artikelnummerInput" type="text" placeholder="Örn: 15A/01">
+        <input class="artikelnummerInput" type="text" placeholder="z.B. 15A/01">
         <div class="grid">
             <div><label>${unit}</label><input class="gutteileInput" type="number"></div>
             <div><label>Ausschuss (${isCompound ? 'Kg' : 'Stk'})</label><input class="ausschussGesamt" type="number"></div>
