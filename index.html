@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Schicht B - Adler Pelzer</title>
+    <title>Schicht B - Adler Pelzer Group</title>
     
-    <!-- PWA & Mobile App Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Schicht B">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/180/ffffff/1a2a5e?text=AP">
+    <link rel="apple-touch-icon" href="APG.jpg">
     
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="APG.jpg" alt="Adler Pelzer Group Logo" style="width: 120px; height: auto;">
+        </div>
         <h1>Schicht B</h1>
         <p>Produktionssystem | Adler Pelzer Group</p>
         
-        <!-- Ana Bilgiler -->
         <div class="grid">
             <div>
                 <label>Datum</label>
@@ -56,16 +57,15 @@
             </optgroup>
         </select>
 
-        <!-- Formträger (Sadece PUR için görünür) -->
         <div id="ftBox">
-            <label>Formträger (FT)</label>
+            <label>Formträger</label>
             <div class="ft-grid">
-                <label><input type="checkbox" value="FT1"> FT1</label>
-                <label><input type="checkbox" value="FT2"> FT2</label>
-                <label><input type="checkbox" value="FT3"> FT3</label>
-                <label><input type="checkbox" value="FT4"> FT4</label>
-                <label><input type="checkbox" value="FT5"> FT5</label>
-                <label><input type="checkbox" value="FT6"> FT6</label>
+                <label><input type="checkbox"> FT1</label>
+                <label><input type="checkbox"> FT2</label>
+                <label><input type="checkbox"> FT3</label>
+                <label><input type="checkbox"> FT4</label>
+                <label><input type="checkbox"> FT5</label>
+                <label><input type="checkbox"> FT6</label>
             </div>
         </div>
 
@@ -77,27 +77,14 @@
         <div id="stoerungContainer"></div>
         <button id="addStoerungBtn" class="secondary">+ Störung hinzufügen</button>
 
-        <hr>
-<!-- WhatsApp Alıcı Seçimi (Kurumsal Format) -->
-<label>Empfänger auswählen :</label>
-<select id="waEmpfaenger" style="border: 2px solid #1a2a5e; background: #f0f4ff; font-weight: bold;">
-    <option value="4917623638794">Herr Keskin Murat</option>
-    <option value="4917660909937">Herr Uzun</option>
-</select>
-
-<button onclick="speichern()" class="main-btn">SPEICHERN & WHATSAPP</button>
+        <button onclick="speichern()" class="main-btn">SPEICHERN & WHATSAPP</button>
     </div>
 
-    <!-- Scripts -->
     <script src="app.js"></script>
     <script>
-        // PWA Kaydı
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("service-worker.js");
         }
-        
-        // Otomatik Bugünün Tarihi
-        document.getElementById("datum").value = new Date().toISOString().split("T")[0];
     </script>
 </body>
 </html>
