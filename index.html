@@ -43,16 +43,31 @@
             <label>Anlage</label>
             <select id="anlage">
                 <option value="">Bitte wählen</option>
-                <optgroup label="PUR Anlagen"><option>PUR1</option><option>PUR2</option><option>PUR3</option><option>PUR4</option><option>PUR5</option><option>PUR6</option><option>PUR7</option><option>PUR8</option><option>PUR9</option></optgroup>
-                <optgroup label="Spritzguss"><option>CIM1</option><option>IM1</option><option>IM2</option><option>IM3</option><option>IM4</option><option>IM5</option></optgroup>
+                <optgroup label="PUR Anlagen">
+                    <option>PUR1</option><option>PUR2</option><option>PUR3</option>
+                    <option>PUR4</option><option>PUR5</option><option>PUR6</option>
+                    <option>PUR7</option><option>PUR8</option><option>PUR9</option>
+                </optgroup>
+                <optgroup label="Spritzguss">
+                    <option>CIM1</option>
+                    <option>IM1</option><option>IM2</option><option>IM3</option>
+                    <option>IM4</option><option>IM5</option>
+                </optgroup>
+                <optgroup label="Compound System">
+                    <option value="COM">Compound Anlage</option>
+                </optgroup>
             </select>
+
             <div id="ftBox"><label>Formträger (FT)</label><div class="ft-grid"><label><input type="checkbox"> FT1</label><label><input type="checkbox"> FT2</label><label><input type="checkbox"> FT3</label><label><input type="checkbox"> FT4</label><label><input type="checkbox"> FT5</label><label><input type="checkbox"> FT6</label></div></div>
+            
             <div id="artikelContainer"></div>
-            <button id="addArtikelBtn" class="secondary">+ Artikel</button>
+            <button id="addArtikelBtn" class="secondary">+ Artikel / Produktion</button>
+            
             <hr>
             <h2>Störungen</h2>
             <div id="stoerungContainer"></div>
-            <button id="addStoerungBtn" class="secondary">+ Störung</button>
+            <button id="addStoerungBtn" class="secondary">+ Störung hinzufügen</button>
+            
             <hr>
             <label>Empfänger (WA)</label>
             <select id="waEmpfaenger">
