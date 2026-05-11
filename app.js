@@ -7,7 +7,6 @@ const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen v
 const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
 const purStoerungCodes = ["4-2-01 Werkzeug", "4-2-02 Instandhaltung", "4-2-03 POLY Überdrück", "4-2-04 Mischkopf", "4-2-08 Reinigung", "5-2-01 Logistik", "5-2-06 Unterbesetzung", "Sonstige"];
 
-// --- INITIALISIERUNG ---
 window.onload = () => {
     document.getElementById("datum").value = new Date().toISOString().split("T")[0];
     if (localStorage.getItem("schichtb_user")) {
@@ -20,7 +19,7 @@ window.onload = () => {
 async function loginKontrol() {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
-    if(!user || !pass) return alert("Benutzername ve Passwort eingeben!");
+    if(!user || !pass) return alert("Benutzername und Passwort eingeben!");
     try {
         const resp = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
         const result = await resp.text();
@@ -71,7 +70,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     html += `
         <div class="grid">
             <div><label>Gut (${isCOM ? 'kg' : 'stk'})</label><input class="gut" type="number"></div>
-            <div><label>Ausschuss Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number"></div>
+            <div><label>Ausschuss Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
         </div>
         <div class="aus-area"></div>
         <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Grund</button>
@@ -87,7 +86,7 @@ function addAusRow(btn, anlage) {
     const row = document.createElement("div");
     row.className = "grid aus-row";
     let list = anlage.startsWith("PUR") ? purAusschussCodes : (anlage.startsWith("IM") || anlage === "CIM1" ? imAusschussCodes : comAusschussCodes);
-    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
     area.appendChild(row);
 }
 
@@ -103,7 +102,7 @@ function addStoerRow(btn, anlage) {
     area.appendChild(row);
 }
 
-// SPEICHERN
+// --- SPEICHERN (Validation eklenmiş hali) ---
 async function speichern() {
     const anlageVal = document.getElementById("anlage").value;
     let staff = [];
@@ -112,29 +111,53 @@ async function speichern() {
     
     let report = "";
     let totalTime = 0;
+    let hasError = false;
 
-    document.querySelectorAll(".artikel-box").forEach(box => {
+    const boxes = document.querySelectorAll(".artikel-box");
+    
+    for (let box of boxes) {
         const bez = box.querySelector(".artBez").value;
         const num = box.querySelector(".artNum") ? box.querySelector(".artNum").value : "";
         const g = box.querySelector(".gut").value || 0;
-        const a = box.querySelector(".ausTotal").value || 0;
+        const aTotalSoll = parseInt(box.querySelector(".ausTotal").value) || 0;
         const d = box.querySelector(".artDauer") ? parseInt(box.querySelector(".artDauer").value) : 0;
         
-        totalTime += d;
-        report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${a}\n`;
-        
-        box.querySelectorAll(".aus-row").forEach(r => {
-            const m = r.querySelector(".aMenge").value;
-            if(m) report += `  └─ Aus: ${r.querySelector(".aCode").value} (${m})\n`;
+        let aSumDetail = 0;
+        let detailsText = "";
+
+        // Ausschuss detaylarını topla ve kontrol et
+        const ausRows = box.querySelectorAll(".aus-row");
+        ausRows.forEach(r => {
+            const m = parseInt(r.querySelector(".aMenge").value) || 0;
+            const code = r.querySelector(".aCode").value;
+            if(m > 0) {
+                aSumDetail += m;
+                detailsText += `  └─ Aus: ${code} (${m})\n`;
+            }
         });
-        
+
+        // KRİTİK KONTROL: Toplam fire miktarı, alt nedenlerin toplamına eşit mi?
+        if (aTotalSoll !== aSumDetail) {
+            alert(`Hata: ${bez} için "Ausschuss Gesamt" (${aTotalSoll}) ile alt nedenlerin toplamı (${aSumDetail}) birbirine eşit değil!`);
+            hasError = true;
+            break; 
+        }
+
+        totalTime += d;
+        report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${aTotalSoll}\n`;
+        report += detailsText;
+
+        // Störung detayları
         box.querySelectorAll(".stoer-row").forEach(r => {
             const min = r.querySelector(".sMin").value;
             const grund = r.querySelector(".sCode") ? r.querySelector(".sCode").value : r.querySelector(".sGrund").value;
             if(min) report += `  └─ ⚠️ Störung: ${grund} (${min} Min)\n`;
         });
-    });
+    }
 
+    if (hasError) return; // Eğer fire miktarı tutmuyorsa işlemi durdur.
+
+    // Compound Süre Uyarısı
     if(anlageVal === "COM" && totalTime !== 480) {
         alert(`Achtung: Die Gesamtzeit beträgt ${totalTime} Min (Soll: 480 Min).`);
     }
@@ -151,5 +174,5 @@ async function speichern() {
         fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
         const waText = `📊 *SCHICHTBERICHT*\n🏭 *Anlage:* ${data.anlage}\n👥 *Team:* ${mitarbeiterStr}\n👤 *Sender:* ${localStorage.getItem("schichtb_user")}\n\n📦 *PRODUKTION:*\n${report}`;
         window.location.href = `https://wa.me/${document.getElementById("waEmpfaenger").value}?text=${encodeURIComponent(waText)}`;
-    } catch (e) { alert("Fehler!"); }
+    } catch (e) { alert("Fehler beim Senden!"); }
 }
