@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycby7prynioIkglyFr8asiid2W2BW71JBbm5zZwz0m6V6SqMGuFpHUyRj9Db3_8Sr3oLWPA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwbeXMNMX1ZkoHTKtEVswb3y-vGMTuyAxd6cvggxHpcH3LXSUKCQPLDOOEiGLaY4w1vJw/exec";
 
 // --- VERI LISTELERI ---
 const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
