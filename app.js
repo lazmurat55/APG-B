@@ -16,7 +16,7 @@ window.onload = () => {
 async function loginKontrol() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
-    if(!user || !pass) return alert("Benutzername/Passwort fehlt!");
+    if(!user || !pass) return alert("Bitte Benutzernamen und Passwort eingeben!");
     try {
         const resp = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
         const result = await resp.text();
@@ -34,17 +34,10 @@ const gesamtDauerBox = document.getElementById("gesamtDauerBox");
 const ftBox = document.getElementById("ftBox");
 const artikelContainer = document.getElementById("artikelContainer");
 
-// MAKİNE SEÇİLDİĞİNDE GÖRÜNÜMÜ AYARLA
 anlage.addEventListener("change", () => {
     const val = anlage.value;
-    
-    // Sadece Compound ise genel süre kutusunu (480 min) göster
     if(gesamtDauerBox) gesamtDauerBox.style.display = (val === "COM") ? "block" : "none";
-    
-    // Sadece PUR makineleri ise FT kutusunu göster
     if(ftBox) ftBox.style.display = val.startsWith("PUR") ? "block" : "none";
-    
-    // Makine değiştiğinde üretim listesini sıfırla (Farklı makine yapısına geçiş için önemli)
     artikelContainer.innerHTML = ""; 
 });
 
@@ -58,56 +51,85 @@ document.getElementById("addWorkerBtn").addEventListener("click", () => {
     document.getElementById("workerContainer").appendChild(box);
 });
 
-// ARTIKEL EKLEME (BURASI KRİTİK: MAKİNE TİPİNE GÖRE DİZAYN EDER)
+// ARTIKEL VE STÖRUNG EKLEME MANTIĞI
 document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const selectedAnlage = anlage.value;
     if(!selectedAnlage) return alert("Bitte zuerst eine Anlage wählen!");
 
     const isCOM = (selectedAnlage === "COM");
+    const isPUR = selectedAnlage.startsWith("PUR");
     const unit = isCOM ? "Kg" : "Stk";
+    
     const box = document.createElement("div");
     box.classList.add("artikel-box");
 
-    // STANDART ALANLAR (PUR ve Spritzguss için sadece bunlar gelir)
-    let htmlContent = `
+    let html = `
         <button class="delete-btn" onclick="this.parentElement.remove()">X</button>
         <div class="grid">
-            <div><label>Artikel</label><input class="artikelBezeichnung" type="text" placeholder="z.B. 15A/01"></div>
+            <div><label>Artikel</label><input class="artikelBezeichnung" type="text"></div>
             <div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>
         </div>
         <div class="grid" style="margin-top:10px;">
             <div><label>Gutmenge (${unit})</label><input class="gutteileInput" type="number"></div>
-            <div><label>Ausschuss (${unit})</label><input class="ausschussInput" type="number"></div>
+            <div><label>Ausschuss Gesamt (${unit})</label><input class="ausschussInput" type="number"></div>
         </div>`;
 
-    // SADECE COMPOUND İSE SÜRE ALANLARINI EKLE
-    if (isCOM) {
-        htmlContent += `
-        <div class="grid" style="margin-top:10px;">
-            <div><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number" placeholder="Gesamt"></div>
-            <div><label>Davon Störzeit (Min)</label><input class="artikelHata" type="number" placeholder="Störung"></div>
-        </div>
-        <div style="margin-top:10px;">
-            <label>Störungsgrund</label><input class="hataNedeni" type="text" placeholder="Grund">
+    // PUR İÇİN AUSSCHUSS KODLARI
+    if (isPUR) {
+        html += `
+        <div style="margin-top:10px; background:#f9f9f9; padding:5px; border-radius:4px;">
+            <label>Ausschuss Details (Stk)</label>
+            <div class="grid">
+                <input type="number" class="aus10" placeholder="Kod 10">
+                <input type="number" class="aus20" placeholder="Kod 20">
+                <input type="number" class="aus30" placeholder="Kod 30">
+                <input type="number" class="aus40" placeholder="Kod 40">
+            </div>
         </div>`;
     }
 
-    box.innerHTML = htmlContent;
+    // COMPOUND İÇİN TOPLAM SÜRE
+    if (isCOM) {
+        html += `
+        <div style="margin-top:10px;">
+            <label>Dauer inkl. Fehler (Min)</label>
+            <input class="artikelDauer" type="number">
+        </div>`;
+    }
+
+    // STÖRUNG BÖLÜMÜ (Tüm makineler için opsiyonel ve sınırsız)
+    html += `
+        <div class="störung-section" style="margin-top:15px; border-top:1px solid #eee; pt:10px;">
+            <div class="störung-container"></div>
+            <button type="button" class="add-störung-btn" style="background:#666; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-top:5px;">+ Störung hinzufügen</button>
+        </div>`;
+
+    box.innerHTML = html;
     artikelContainer.appendChild(box);
+
+    // Störung Ekleme Butonu Fonksiyonu
+    box.querySelector(".add-störung-btn").addEventListener("click", () => {
+        const sContainer = box.querySelector(".störung-container");
+        const sRow = document.createElement("div");
+        sRow.classList.add("grid");
+        sRow.style.marginTop = "5px";
+        sRow.innerHTML = `
+            <input type="text" class="sGrund" placeholder="Grund / Kod" style="flex:2">
+            <input type="number" class="sMin" placeholder="Min" style="flex:1">
+            <button onclick="this.parentElement.remove()" style="background:none; border:none; color:red; cursor:pointer;">X</button>`;
+        sContainer.appendChild(sRow);
+    });
 });
 
 async function speichern() {
     const anlageVal = anlage.value;
-    const workers = document.querySelectorAll(".workerSelect");
     const artikels = document.querySelectorAll(".artikel-box");
     const currentUser = localStorage.getItem("schichtb_user") || "Unbekannt";
 
-    if (!anlageVal || workers.length === 0 || artikels.length === 0) {
-        return alert("Bitte Anlage, Mitarbeiter und Produktion ausfüllen!");
-    }
+    if (!anlageVal || artikels.length === 0) return alert("Pflichtfelder fehlen!");
 
     let artikelText = "";
-    let totalMin = 0;
+    let totalCOMMin = 0;
 
     artikels.forEach(box => {
         const bez = box.querySelector(".artikelBezeichnung").value;
@@ -116,48 +138,51 @@ async function speichern() {
         const aus = box.querySelector(".ausschussInput").value || 0;
         const unit = (anlageVal === "COM") ? "Kg" : "Stk";
 
+        artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}\n`;
+
+        // PUR Ausschuss Detayları
+        if (anlageVal.startsWith("PUR")) {
+            const a10 = box.querySelector(".aus10").value;
+            const a20 = box.querySelector(".aus20").value;
+            const a30 = box.querySelector(".aus30").value;
+            const a40 = box.querySelector(".aus40").value;
+            if(a10||a20||a30||a40) artikelText += `  └─ Ausschuss: [10:${a10||0}] [20:${a20||0}] [30:${a30||0}] [40:${a40||0}]\n`;
+        }
+
+        // Störungen Detayları
+        const sRows = box.querySelectorAll(".störung-container .grid");
+        let artikelHataMin = 0;
+        sRows.forEach(row => {
+            const g = row.querySelector(".sGrund").value;
+            const m = parseInt(row.querySelector(".sMin").value || 0);
+            if(g) {
+                artikelText += `  └─ ⚠️ Störung: ${g} (${m} Min)\n`;
+                artikelHataMin += m;
+            }
+        });
+
         if (anlageVal === "COM") {
             const ges = parseInt(box.querySelector(".artikelDauer").value || 0);
-            const hat = parseInt(box.querySelector(".artikelHata").value || 0);
-            const ndn = box.querySelector(".hataNedeni").value || "Keine";
-            totalMin += ges;
-            const netto = ges - hat;
-            artikelText += `• ${bez} | G: ${gut}${unit} | A: ${aus}${unit}\n  ⏱️ Toplam: ${ges} Min (Netto: ${netto} | Störung: ${hat} - ${ndn})\n`;
-        } else {
-            artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}\n`;
+            totalCOMMin += ges;
+            artikelText += `  ⏱️ Zeit: ${ges} Min (Netto: ${ges - artikelHataMin} | Störung: ${artikelHataHataMin})\n`;
         }
     });
 
-    // Sadece Compound süresini kontrol et
     if (anlageVal === "COM") {
         const soll = parseInt(document.getElementById("gesamtDauerInput").value || 480);
-        if (totalMin !== soll) {
-            if(!confirm(`⚠️ ZEIT-WARNUNG!\nEingegebene Gesamtzeit: ${totalMin} Min.\nErwartet (Soll): ${soll} Min.\nTrotzdem senden?`)) return;
-        }
-    }
-
-    // Seçilen FT'leri al (Sadece PUR için)
-    let selectedFTs = "";
-    if (anlageVal.startsWith("PUR")) {
-        const fts = document.querySelectorAll("#ftBox input[type='checkbox']:checked");
-        if(fts.length > 0) {
-            selectedFTs = " (FT: " + Array.from(fts).map(cb => cb.parentElement.innerText.trim()).join(", ") + ")";
-        }
+        if (totalCOMMin !== soll) confirm(`Warnung: Gesamtzeit ${totalCOMMin} Min entspricht nicht Soll ${soll} Min. Trotzdem senden?`);
     }
 
     const data = {
         datum: document.getElementById("datum").value,
         schicht: document.getElementById("schicht").value,
-        mitarbeiter: Array.from(workers).map(s => s.value).join(", "),
-        anlage: anlageVal + selectedFTs,
+        mitarbeiter: [...document.querySelectorAll(".workerSelect")].map(s => s.value).join(", "),
+        anlage: anlageVal,
         artikel: artikelText,
         sender: currentUser
     };
 
-    // Google Sheets'e gönder
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-    
-    // WhatsApp Hazırla
     const waText = `📊 *SCHICHTBERICHT*\n👤 *Erstellt von:* ${currentUser}\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}`;
     window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(waText)}`;
 }
