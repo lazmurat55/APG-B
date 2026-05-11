@@ -1,15 +1,23 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <link rel="icon" type="image/jpeg" href="./APG.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Schicht B - Adler Pelzer</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Schicht B">
+    
+    <link rel="apple-touch-icon" href="APG.jpg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div id="loginBox" class="card">
         <h1>Schicht B Login</h1>
+        <p>Bitte Benutzerdaten eingeben.</p>
         <label>Benutzername</label>
         <input type="text" id="username">
         <label>Passwort</label>
@@ -19,9 +27,14 @@
 
     <div id="mainForm" style="display:none;">
         <div class="card">
-            <h1>Schicht B Bericht</h1>
+            <h1>Schicht B</h1>
+            <p>Produktionssystem | Adler Pelzer Group</p>
+            
             <div class="grid">
-                <div><label>Datum</label><input type="date" id="datum"></div>
+                <div>
+                    <label>Datum</label>
+                    <input type="date" id="datum">
+                </div>
                 <div>
                     <label>Schicht</label>
                     <select id="schicht">
@@ -31,12 +44,14 @@
                     </select>
                 </div>
             </div>
+
             <hr>
             <h2>Mitarbeiter</h2>
             <div id="workerContainer"></div>
-            <button id="addWorkerBtn" class="secondary">+ Mitarbeiter</button>
+            <button id="addWorkerBtn" style="background:#475569;">+ Mitarbeiter hinzufügen</button>
+
             <hr>
-            <label>Anlage</label>
+            <label>Anlage wählen</label>
             <select id="anlage">
                 <option value="">Bitte wählen</option>
                 <optgroup label="PUR Anlagen">
@@ -54,28 +69,42 @@
                 </optgroup>
             </select>
 
-            <div id="ftBox" style="display:none;"><label>Formträger (FT)</label><div class="ft-grid"><label><input type="checkbox"> FT1</label><label><input type="checkbox"> FT2</label><label><input type="checkbox"> FT3</label><label><input type="checkbox"> FT4</label><label><input type="checkbox"> FT5</label><label><input type="checkbox"> FT6</label></div></div>
-            
-            <hr>
-            <h2>Produktion</h2>
+            <div id="ftBox" style="display:none;">
+                <label>Formträger (FT)</label>
+                <div class="ft-grid">
+                    <label><input type="checkbox" class="ft-check"> FT1</label>
+                    <label><input type="checkbox" class="ft-check"> FT2</label>
+                    <label><input type="checkbox" class="ft-check"> FT3</label>
+                    <label><input type="checkbox" class="ft-check"> FT4</label>
+                    <label><input type="checkbox" class="ft-check"> FT5</label>
+                    <label><input type="checkbox" class="ft-check"> FT6</label>
+                </div>
+            </div>
+
             <div id="artikelContainer"></div>
-            <button id="addArtikelBtn" class="secondary">+ Artikel</button>
-            
-            <hr>
-            <div id="gesamtDauerBox" style="display:none; background: #f0f4f8; padding: 15px; border-radius: 8px; border: 2px solid #2d4154; margin-top: 15px;">
-    <label><strong>Gesamt Arbeitszeit (Minuten)</strong></label>
-    <input type="number" id="gesamtDauerInput" value="480">
-</div>
+            <button id="addArtikelBtn" style="background:#475569;">+ Artikel hinzufügen</button>
+
+            <div id="gesamtDauerBox" style="display:none; background: #f0f4f8; padding: 20px; border-radius: 15px; border: 2px solid #1a2a5e; margin-top: 20px;">
+                <label><strong>Gesamt Arbeitszeit (Minuten)</strong></label>
+                <input type="number" id="gesamtDauerInput" value="480">
+            </div>
 
             <hr>
-            <label>Empfänger (WA)</label>
+            <label>Empfänger auswählen (WhatsApp)</label>
             <select id="waEmpfaenger">
                 <option value="4917623638794">Herr Keskin Murat</option>
                 <option value="4917660909937">Herr Uzun</option>
             </select>
-            <button onclick="speichern()" class="main-btn">SPEICHERN & SENDEN</button>
+
+            <button onclick="speichern()" class="main-btn" style="background:#10b981; font-weight:bold; font-size:18px;">SPEICHERN & SENDEN</button>
         </div>
     </div>
+
     <script src="app.js"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js");
+        }
+    </script>
 </body>
 </html>
