@@ -11,24 +11,29 @@
     <meta name="apple-mobile-web-app-title" content="Schicht B">
     
     <link rel="apple-touch-icon" href="APG.jpg">
+    <link rel="icon" type="image/jpeg" href="APG.jpg">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="loginBox" class="card">
         <h1>Schicht B Login</h1>
-        <p>Bitte Benutzerdaten eingeben.</p>
-        <label>Benutzername</label>
-        <input type="text" id="username">
-        <label>Passwort</label>
-        <input type="password" id="password">
-        <button onclick="loginKontrol()">EINLOGGEN</button>
+        <p>Produktionssystem | Adler Pelzer Group</p>
+        <div style="margin-top:20px;">
+            <label>Benutzername</label>
+            <input type="text" id="username" placeholder="Dein Name">
+            
+            <label>Passwort</label>
+            <input type="password" id="password" placeholder="Dein Passwort">
+            
+            <button onclick="loginKontrol()" style="margin-top:30px; background:#1a2a5e;">EINLOGGEN</button>
+        </div>
     </div>
 
     <div id="mainForm" style="display:none;">
         <div class="card">
-            <h1>Schicht B</h1>
-            <p>Produktionssystem | Adler Pelzer Group</p>
+            <h1>Schicht B Bericht</h1>
             
             <div class="grid">
                 <div>
@@ -48,7 +53,7 @@
             <hr>
             <h2>Mitarbeiter</h2>
             <div id="workerContainer"></div>
-            <button id="addWorkerBtn" style="background:#475569;">+ Mitarbeiter hinzufügen</button>
+            <button type="button" id="addWorkerBtn" style="background:#475569;">+ Mitarbeiter hinzufügen</button>
 
             <hr>
             <label>Anlage wählen</label>
@@ -69,7 +74,7 @@
                 </optgroup>
             </select>
 
-            <div id="ftBox" style="display:none;">
+            <div id="ftBox" style="display:none; margin-top:20px;">
                 <label>Formträger (FT)</label>
                 <div class="ft-grid">
                     <label><input type="checkbox" class="ft-check"> FT1</label>
@@ -81,13 +86,15 @@
                 </div>
             </div>
 
-            <div id="artikelContainer"></div>
-            <button id="addArtikelBtn" style="background:#475569;">+ Artikel hinzufügen</button>
-
-            <div id="gesamtDauerBox" style="display:none; background: #f0f4f8; padding: 20px; border-radius: 15px; border: 2px solid #1a2a5e; margin-top: 20px;">
-                <label><strong>Gesamt Arbeitszeit (Minuten)</strong></label>
+            <div id="gesamtDauerBox" style="display:none; background:#f0f4f8; padding:15px; border-radius:12px; margin-top:20px; border:1px solid #1a2a5e;">
+                <label>Gesamt Arbeitszeit (Minuten)</label>
                 <input type="number" id="gesamtDauerInput" value="480">
             </div>
+
+            <hr>
+            <h2>Produktion</h2>
+            <div id="artikelContainer"></div>
+            <button type="button" id="addArtikelBtn" style="background:#475569;">+ Artikel hinzufügen</button>
 
             <hr>
             <label>Empfänger auswählen (WhatsApp)</label>
@@ -96,12 +103,13 @@
                 <option value="4917660909937">Herr Uzun</option>
             </select>
 
-            <button onclick="speichern()" class="main-btn" style="background:#10b981; font-weight:bold; font-size:18px;">SPEICHERN & SENDEN</button>
+            <button onclick="speichern()" class="main-btn" style="background:#10b981; font-weight:bold; margin-top:30px;">SPEICHERN & SENDEN</button>
         </div>
     </div>
 
     <script src="app.js"></script>
     <script>
+        // PWA Service Worker Kaydı
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("service-worker.js");
         }
