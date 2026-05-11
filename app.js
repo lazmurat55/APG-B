@@ -35,7 +35,7 @@ const gesamtDauerBox = document.getElementById("gesamtDauerBox");
 
 if (anlage) {
     anlage.addEventListener("change", () => {
-        gesamtDauerBox.style.display = (anlage.value === "COM") ? "block" : "none";
+        if(gesamtDauerBox) gesamtDauerBox.style.display = (anlage.value === "COM") ? "block" : "none";
         const ftBox = document.getElementById("ftBox");
         if(ftBox) ftBox.style.display = anlage.value.startsWith("PUR") ? "block" : "none";
     });
@@ -59,7 +59,7 @@ addWorkerBtn.addEventListener("click", () => {
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
 });
 
-// --- ARTIKEL EKLEME (Compound Odaklı) ---
+// --- ARTIKEL EKLEME ---
 addArtikelBtn.addEventListener("click", () => {
     if(!anlage.value) return alert("Bitte zuerst Anlage wählen!");
     const isCompound = (anlage.value === "COM");
@@ -78,12 +78,12 @@ addArtikelBtn.addEventListener("click", () => {
             <div><label>Ausschuss (${unit})</label><input class="ausschussGesamt" type="number"></div>
         </div>
         <div class="grid" style="margin-top:10px;">
-            <div><label>Netto-Produktionszeit (Min)</label><input class="artikelDauer" type="number" placeholder="Nur Laufzeit"></div>
+            <div><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number" placeholder="Gesamtzeit"></div>
             <div style="display:flex; align-items:flex-end;">
-                <button class="addFehlerBtn" type="button" style="width:100%; height:40px; background:#444; color:white; border:none; border-radius:4px;">+ Störung bei Artikel</button>
+                <button class="addFehlerBtn" type="button" style="width:100%; height:40px; background:#d32f2f; color:white; border:none; border-radius:4px; font-weight:bold;">+ Störzeit (Min)</button>
             </div>
         </div>
-        <div class="fehlerBox" style="display:none; margin-top:10px;">
+        <div class="fehlerBox" style="display:none; margin-top:10px; background:#fff3f3; padding:10px; border-radius:5px;">
             <div class="fehlerContainer"></div>
         </div>`;
         
@@ -95,8 +95,8 @@ addArtikelBtn.addEventListener("click", () => {
         const row = document.createElement("div");
         row.classList.add("grid"); row.style.marginTop = "10px";
         row.innerHTML = `
-            <div><input class="fehlerSelect" type="text" placeholder="Fehlergrund"></div>
-            <div><input class="fehlerMenge" type="number" placeholder="Zeit (Min)"></div>`;
+            <div><input class="fehlerSelect" type="text" placeholder="Störungsgrund"></div>
+            <div><input class="fehlerMenge" type="number" placeholder="Min"></div>`;
         box.querySelector(".fehlerContainer").appendChild(row);
     });
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
@@ -108,7 +108,7 @@ async function speichern() {
     const artikelBoxes = document.querySelectorAll(".artikel-box");
 
     if (!anlageVal || workerBoxes.length === 0 || artikelBoxes.length === 0) {
-        return alert("❌ Fehler: Anlage, Mitarbeiter und Produktion sind Pflichtfelder!");
+        return alert("❌ Fehler: Bitte alle Pflichtfelder ausfüllen (Anlage, Mitarbeiter, Produktion)!");
     }
 
     let artikelText = "";
@@ -119,33 +119,33 @@ async function speichern() {
         const num = box.querySelector(".artikelnummerInput").value;
         const gut = box.querySelector(".gutteileInput").value;
         const aus = box.querySelector(".ausschussGesamt").value || 0;
-        const netDauer = parseInt(box.querySelector(".artikelDauer").value || 0);
+        const toplamDauer = parseInt(box.querySelector(".artikelDauer").value || 0);
         const unit = (anlageVal === "COM") ? "Kg" : "Stk";
         
-        let artikelFehlerText = "";
         let artikelHataSuresi = 0;
+        let hataDetaylari = "";
 
         box.querySelectorAll(".fehlerContainer .grid").forEach(row => {
             const fGrund = row.querySelector(".fehlerSelect").value;
             const fZeit = parseInt(row.querySelector(".fehlerMenge").value || 0);
             if(fGrund) {
-                artikelFehlerText += `  └─ ⚠️ ${fGrund}: ${fZeit} Min\n`;
+                hataDetaylari += `  └─ ⚠️ ${fGrund}: ${fZeit} Min\n`;
                 artikelHataSuresi += fZeit;
             }
         });
 
-        const toplamArtikelSuresi = netDauer + artikelHataSuresi;
-        istDauerGesamt += toplamArtikelSuresi;
+        const nettoProd = toplamDauer - artikelHataSuresi;
+        istDauerGesamt += toplamDauer;
 
         artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}\n`;
-        artikelText += `  ⏱️ Zeit: ${toplamArtikelSuresi} Min (Netto: ${netDauer} + Störung: ${artikelHataSuresi})\n`;
-        artikelText += artikelFehlerText;
+        artikelText += `  ⏱️ Gesamt: ${toplamDauer} Min (Netto: ${nettoProd} | Störung: ${artikelHataSuresi})\n`;
+        artikelText += hataDetaylari;
     });
 
     if (anlageVal === "COM") {
         const sollDauer = parseInt(document.getElementById("gesamtDauerInput").value || 480);
         if (istDauerGesamt !== sollDauer) {
-            if(!confirm(`⚠️ ZEIT-WARNUNG!\nGesamtzeit: ${istDauerGesamt} Min.\nSoll-Zeit: ${sollDauer} Min.\nTrotzdem senden?`)) return;
+            if(!confirm(`⚠️ ZEIT-WARNUNG!\nSumme Artikelzeiten: ${istDauerGesamt} Min.\nErwartet: ${sollDauer} Min.\n\nTrotzdem senden?`)) return;
         }
     }
 
