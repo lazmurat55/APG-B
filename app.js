@@ -63,7 +63,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     box.querySelector(".add-aus-btn").addEventListener("click", () => {
         let list = anlageVal.startsWith("PUR") ? purAusschussCodes : (anlageVal.startsWith("IM") || anlageVal === "CIM1" ? imAusschussCodes : comAusschussCodes);
         const row = document.createElement("div");
-        row.className = "grid aus-row"; // 'aus-row' class'ı ekledik ki veriyi çekerken bulabilelim
+        row.className = "grid aus-row";
         row.style.marginTop = "5px";
         row.innerHTML = `<select class="ausSelect" style="flex:2">${list.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="ausMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
         box.querySelector(".ausschuss-container").appendChild(row);
@@ -94,24 +94,20 @@ async function speichern() {
         
         artikelText += `• ${bez} | G:${gut} A:${aus}\n`;
 
-        // FIRE DETAYLARINI TOPLA
+        // Detaylı Fire Sebeplerini Oku
         const fireRows = box.querySelectorAll(".aus-row");
         fireRows.forEach(row => {
             const code = row.querySelector(".ausSelect").value;
             const mng = row.querySelector(".ausMenge").value;
-            if(mng) {
-                artikelText += `  └─ Fire: ${code} (${mng})\n`;
-            }
+            if(mng) artikelText += `  └─ Fire: ${code} (${mng})\n`;
         });
 
-        // DURUŞ DETAYLARINI TOPLA
+        // Detaylı Hata/Duruşları Oku
         const stoerRows = box.querySelectorAll(".stoerung-row");
         stoerRows.forEach(row => {
             let grund = row.querySelector(".sSelect") ? row.querySelector(".sSelect").value : row.querySelector(".sGrund").value;
             const min = row.querySelector(".sMin").value;
-            if(min) {
-                artikelText += `  └─ ⚠️ Hata: ${grund} (${min} Min)\n`;
-            }
+            if(min) artikelText += `  └─ ⚠️ Hata: ${grund} (${min} Min)\n`;
         });
     });
 
@@ -123,13 +119,11 @@ async function speichern() {
         artikel: artikelText
     };
 
-    // Google Tabloya Gönder
+    // Google Tabloya POST
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
 
-    // Zaman ve WhatsApp
-    const simdi = new Date();
-    const saat = simdi.getHours().toString().padStart(2, '0') + ":" + simdi.getMinutes().toString().padStart(2, '0');
-    const waText = `📊 *SCHICHTBERICHT*\n📅 *Tarih:* ${data.datum}\n🕒 *Vardiya:* ${data.schicht}\n⏰ *Saat:* ${saat}\n🏭 *Makine:* ${data.anlage}\n👤 *Ekip:* ${data.mitarbeiter}\n\n📦 *ÜRETİM:*\n${artikelText}`;
+    // WhatsApp Mesajı
+    const waText = `📊 *SCHICHTBERICHT*\n📅 *Tarih:* ${data.datum}\n🕒 *Vardiya:* ${data.schicht}\n🏭 *Makine:* ${data.anlage}\n👤 *Ekip:* ${data.mitarbeiter}\n\n📦 *ÜRETİM:*\n${artikelText}`;
     
     window.location.href = `https://wa.me/${document.getElementById("waEmpfaenger").value}?text=${encodeURIComponent(waText)}`;
 }
