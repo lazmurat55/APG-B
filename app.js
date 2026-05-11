@@ -5,6 +5,7 @@ const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E
 
 const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
 const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen oder beschädigt", "Sonstige"];
+const comAusschussCodes = ["Anfahrschrott", "Sonstiger"]; // COMPOUND ÖZEL LİSTE
 
 const purStoerungCodes = [
     "4-2-01 Werkzeug", "4-2-02 Ungepl. Instandhaltung", "4-2-03 POLY /SO Überdrück", "4-2-04 Mischkopf n.i.o.", "4-2-05 Fehler Lichtschranke", "4-2-06 Trennmittelpistole verstopft",
@@ -63,19 +64,17 @@ document.getElementById("addWorkerBtn").addEventListener("click", () => {
     sel.addEventListener("change", () => ext.style.display = sel.value === "Sonstige" ? "block" : "none");
 });
 
-// --- AUSSCHUSS KONTROL FONKSIYONU ---
+// --- AUSSCHUSS KONTROL ---
 function checkAusschussSum(box) {
     const totalInput = box.querySelector(".ausschussInput");
     const warnung = box.querySelector(".ausWarnung");
     const details = box.querySelectorAll(".ausMenge");
-    
     let totalSoll = parseInt(totalInput.value) || 0;
     let currentSum = 0;
     details.forEach(inp => currentSum += (parseInt(inp.value) || 0));
-
     if (totalSoll > 0 && currentSum !== totalSoll) {
         warnung.style.display = "block";
-        warnung.innerText = `⚠️ Summe der Codes (${currentSum}) stimmt nicht mit Gesamt-Ausschuss (${totalSoll}) überein! Bitte anpassen.`;
+        warnung.innerText = `⚠️ Summe der Codes (${currentSum}) stimmt değil! Gesamt: ${totalSoll}`;
         return false;
     } else {
         warnung.style.display = "none";
@@ -86,7 +85,7 @@ function checkAusschussSum(box) {
 // ARTIKEL ADD
 document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const selectedAnlage = anlage.value;
-    if(!selectedAnlage) return alert("Bitte zuerst Anlage wählen!");
+    if(!selectedAnlage) return alert("Bitte Anlage wählen!");
 
     const isCOM = (selectedAnlage === "COM");
     const isPUR = selectedAnlage.startsWith("PUR");
@@ -97,9 +96,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     box.classList.add("artikel-box");
 
     let artikelRowHtml = `<div><label>Artikel</label><input class="artikelBezeichnung" type="text"></div>`;
-    if (isCOM) {
-        artikelRowHtml += `<div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>`;
-    }
+    if (isCOM) { artikelRowHtml += `<div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>`; }
 
     let html = `
         <button class="delete-btn" onclick="this.parentElement.remove()">X</button>
@@ -108,24 +105,19 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
             <div><label>Gutmenge (${unit})</label><input class="gutteileInput" type="number"></div>
             <div><label>Ausschuss Gesamt (${unit})</label><input class="ausschussInput" type="number"></div>
         </div>
-        <p class="ausWarnung" style="color:#d32f2f; font-size:12px; font-weight:bold; display:none; margin-top:5px;"></p>`;
-
-    if (isPUR || isIM) {
-        html += `
+        <p class="ausWarnung" style="color:#d32f2f; font-size:12px; font-weight:bold; display:none; margin-top:5px;"></p>
+        
         <div class="ausschuss-detail-section" style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
             <div class="ausschuss-container"></div>
             <button type="button" class="add-aus-btn" style="background:#8b949e; color:white; border:none; padding:5px; border-radius:5px; font-size:12px; cursor:pointer;">+ Ausschuss-Grund hinzufügen</button>
         </div>`;
-    }
 
-    if (isCOM) {
-        html += `<div style="margin-top:10px;"><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number"></div>`;
-    }
+    if (isCOM) { html += `<div style="margin-top:10px;"><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number"></div>`; }
 
     html += `
         <div class="störung-section" style="margin-top:15px; border-top:1px solid #cbd5e1; padding-top:10px;">
             <div class="störung-container"></div>
-            <button type="button" class="add-störung-btn" style="background:#64748b; color:white; border:none; padding:10px; border-radius:10px; cursor:pointer; width:auto;">+ Störung hinzufügen</button>
+            <button type="button" class="add-störung-btn" style="background:#64748b; color:white; border:none; padding:10px; border-radius:10px; cursor:pointer;">+ Störung hinzufügen</button>
         </div>`;
 
     box.innerHTML = html;
@@ -134,19 +126,22 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const totalAusInput = box.querySelector(".ausschussInput");
     totalAusInput.addEventListener("input", () => checkAusschussSum(box));
 
-    if (isPUR || isIM) {
-        box.querySelector(".add-aus-btn").addEventListener("click", () => {
-            const currentList = isPUR ? purAusschussCodes : imAusschussCodes;
-            const ausOpt = currentList.map(c => `<option>${c}</option>`).join("");
-            const ausRow = document.createElement("div");
-            ausRow.classList.add("grid"); ausRow.style.marginTop = "5px";
-            ausRow.innerHTML = `<select class="ausSelect" style="flex:2">${ausOpt}</select><div style="display:flex; gap:5px; flex:1"><input type="number" class="ausMenge" placeholder="${unit}"><button onclick="this.parentElement.parentElement.remove(); checkAusschussSum(box);" style="background:none; border:none; color:red;">X</button></div>`;
-            box.querySelector(".ausschuss-container").appendChild(ausRow);
-            
-            ausRow.querySelector(".ausMenge").addEventListener("input", () => checkAusschussSum(box));
-        });
-    }
+    // Ausschuss-Grund Ekleme (Her makine tipi için liste geliyor)
+    box.querySelector(".add-aus-btn").addEventListener("click", () => {
+        let currentList = [];
+        if(isPUR) currentList = purAusschussCodes;
+        else if(isIM) currentList = imAusschussCodes;
+        else if(isCOM) currentList = comAusschussCodes; // Compound listesi burada
 
+        const ausOpt = currentList.map(c => `<option>${c}</option>`).join("");
+        const ausRow = document.createElement("div");
+        ausRow.classList.add("grid"); ausRow.style.marginTop = "5px";
+        ausRow.innerHTML = `<select class="ausSelect" style="flex:2">${ausOpt}</select><div style="display:flex; gap:5px; flex:1"><input type="number" class="ausMenge" placeholder="${unit}"><button onclick="this.parentElement.parentElement.remove(); checkAusschussSum(box);" style="background:none; border:none; color:red;">X</button></div>`;
+        box.querySelector(".ausschuss-container").appendChild(ausRow);
+        ausRow.querySelector(".ausMenge").addEventListener("input", () => checkAusschussSum(box));
+    });
+
+    // Störung Ekleme
     box.querySelector(".add-störung-btn").addEventListener("click", () => {
         const sRow = document.createElement("div");
         sRow.classList.add("grid"); sRow.style.marginTop = "10px";
@@ -167,14 +162,11 @@ async function speichern() {
     const anlageVal = anlage.value;
     const artikels = document.querySelectorAll(".artikel-box");
     const currentUser = localStorage.getItem("schichtb_user") || "Unbekannt";
-    if (!anlageVal || artikels.length === 0) return alert("Daten unvollständig!");
+    if (!anlageVal || artikels.length === 0) return alert("Pflichtfelder fehlen!");
 
-    // SON KONTROL: Ausschuss toplamları tutuyor mu?
     let isValid = true;
-    artikels.forEach(box => {
-        if (!checkAusschussSum(box)) isValid = false;
-    });
-    if (!isValid) return alert("❌ Fehler: Die Ausschuss-Details stimmen nicht mit der Gesamtmenge überein! Bitte anpassen.");
+    artikels.forEach(box => { if (!checkAusschussSum(box)) isValid = false; });
+    if (!isValid) return alert("❌ Ausschuss-Details stimmen nicht!");
 
     let artikelText = "";
     let totalMinCOM = 0;
@@ -191,7 +183,7 @@ async function speichern() {
         box.querySelectorAll(".ausschuss-container .grid").forEach(row => {
             const c = row.querySelector(".ausSelect").value;
             const m = row.querySelector(".ausMenge").value;
-            if(m) artikelText += `  └─ Code: ${c} (${m})\n`;
+            if(m) artikelText += `  └─ Fire: ${c} (${m})\n`;
         });
 
         box.querySelectorAll(".störung-container .grid").forEach(row => {
@@ -209,20 +201,9 @@ async function speichern() {
 
     if (anlageVal === "COM") {
         const soll = parseInt(document.getElementById("gesamtDauerInput").value || 480);
-        if (totalMinCOM !== soll) {
-            if(!confirm(`Warnung: ${totalMinCOM} Min vs ${soll} Min. Trotzdem senden?`)) return;
-        }
+        if (totalMinCOM !== soll) { if(!confirm(`Warnung: ${totalMinCOM} Min vs ${soll} Min?`)) return; }
     }
 
     const data = {
         datum: document.getElementById("datum").value,
-        schicht: document.getElementById("schicht").value,
-        mitarbeiter: [...document.querySelectorAll(".workerSelect")].map(s => s.value).join(", "),
-        anlage: anlageVal,
-        artikel: artikelText,
-        sender: currentUser
-    };
-
-    fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-    window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent("📊 *SCHICHTBERICHT*\n👤 *Sender:* "+currentUser+"\n📅 *Datum:* "+data.datum+"\n🕒 *Schicht:* "+data.schicht+"\n🏭 *Anlage:* "+data.anlage+"\n\n📦 *PRODUKTION:*\n"+artikelText)}`;
-}
+        schicht: document.getElementById("sch
