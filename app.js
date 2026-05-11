@@ -1,7 +1,7 @@
 const scriptURL = "https://script.google.com/macros/s/AKfycbzTluCCUn3xUHuncTLf4aiosQm3M7oZ2SVvqWSuoXLmCyDnHZVgX7o_bE4TIW9R2BtGqA/exec";
 
 // --- VERI LISTELERI ---
-const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba N.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
+const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
 
 const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
 const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen oder beschädigt", "Sonstige"];
@@ -76,18 +76,20 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const box = document.createElement("div");
     box.classList.add("artikel-box");
 
+    // ARTIKEL ZEILE (Artikelnummer nur bei COM)
+    let artikelRowHtml = `<div><label>Artikel</label><input class="artikelBezeichnung" type="text"></div>`;
+    if (isCOM) {
+        artikelRowHtml += `<div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>`;
+    }
+
     let html = `
         <button class="delete-btn" onclick="this.parentElement.remove()">X</button>
-        <div class="grid">
-            <div><label>Artikel</label><input class="artikelBezeichnung" type="text"></div>
-            <div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>
-        </div>
+        <div class="grid">${artikelRowHtml}</div>
         <div class="grid" style="margin-top:10px;">
             <div><label>Gutmenge (${unit})</label><input class="gutteileInput" type="number"></div>
             <div><label>Ausschuss Gesamt (${unit})</label><input class="ausschussInput" type="number"></div>
         </div>`;
 
-    // AUSSCHUSS DETAYLARI (PUR VE IM İÇİN LİSTELİ)
     if (isPUR || isIM) {
         html += `
         <div class="ausschuss-detail-section" style="margin-top:10px; border-top:1px dashed #ccc; padding-top:10px;">
@@ -100,7 +102,6 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
         html += `<div style="margin-top:10px;"><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number"></div>`;
     }
 
-    // STÖRUNG BÖLÜMÜ
     html += `
         <div class="störung-section" style="margin-top:15px; border-top:1px solid #cbd5e1; padding-top:10px;">
             <div class="störung-container"></div>
@@ -110,7 +111,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     box.innerHTML = html;
     artikelContainer.appendChild(box);
 
-    // Ausschuss Row (PUR ve IM için farklı listeler)
+    // Ausschuss Event
     if (isPUR || isIM) {
         box.querySelector(".add-aus-btn").addEventListener("click", () => {
             const currentList = isPUR ? purAusschussCodes : imAusschussCodes;
@@ -122,18 +123,17 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
         });
     }
 
-    // Störung Row
+    // Störung Event
     box.querySelector(".add-störung-btn").addEventListener("click", () => {
         const sRow = document.createElement("div");
         sRow.classList.add("grid"); sRow.style.marginTop = "10px";
-
-        if (isPUR) { // PUR İÇİN LİSTELİ
+        if (isPUR) {
             let sOpt = purStoerungCodes.map(c => `<option>${c}</option>`).join("");
             sRow.innerHTML = `<div style="flex:2"><select class="sSelect">${sOpt}</select><input type="text" class="sGrund" placeholder="Info" style="display:none; margin-top:5px;"></div><div style="display:flex; gap:5px; flex:1"><input type="number" class="sMin" placeholder="Min"><button onclick="this.parentElement.parentElement.remove()" style="background:#ef4444; width:35px; border:none; color:white; border-radius:8px;">X</button></div>`;
             const sel = sRow.querySelector(".sSelect");
             const inp = sRow.querySelector(".sGrund");
             sel.addEventListener("change", () => inp.style.display = sel.value === "Sonstige" ? "block" : "none");
-        } else { // SPRITZGUSS VE COM İÇİN ELLE YAZMALI
+        } else {
             sRow.innerHTML = `<input type="text" class="sGrund" placeholder="Störungsgrund" style="flex:2"><div style="display:flex; gap:5px; flex:1"><input type="number" class="sMin" placeholder="Min"><button onclick="this.parentElement.parentElement.remove()" style="background:#ef4444; width:35px; border:none; color:white; border-radius:8px;">X</button></div>`;
         }
         box.querySelector(".störung-container").appendChild(sRow);
@@ -144,7 +144,6 @@ async function speichern() {
     const anlageVal = anlage.value;
     const artikels = document.querySelectorAll(".artikel-box");
     const currentUser = localStorage.getItem("schichtb_user") || "Unbekannt";
-
     if (!anlageVal || artikels.length === 0) return alert("Daten unvollständig!");
 
     let artikelText = "";
@@ -152,19 +151,19 @@ async function speichern() {
 
     artikels.forEach(box => {
         const bez = box.querySelector(".artikelBezeichnung").value;
-        const num = box.querySelector(".artikelnummerInput").value;
+        const numInput = box.querySelector(".artikelnummerInput");
+        const num = numInput ? numInput.value : "";
         const gut = box.querySelector(".gutteileInput").value;
         const aus = box.querySelector(".ausschussInput").value || 0;
-        artikelText += `• ${bez} (${num}) | G: ${gut} | A: ${aus}\n`;
+        
+        artikelText += `• ${bez}${num ? " ("+num+")" : ""} | G: ${gut} | A: ${aus}\n`;
 
-        // Ausschuss Details
         box.querySelectorAll(".ausschuss-container .grid").forEach(row => {
             const c = row.querySelector(".ausSelect").value;
             const m = row.querySelector(".ausMenge").value;
             if(m) artikelText += `  └─ Fire: ${c} (${m})\n`;
         });
 
-        // Störung Details
         box.querySelectorAll(".störung-container .grid").forEach(row => {
             let g = row.querySelector(".sSelect") ? (row.querySelector(".sSelect").value === "Sonstige" ? row.querySelector(".sGrund").value : row.querySelector(".sSelect").value) : row.querySelector(".sGrund").value;
             const m = parseInt(row.querySelector(".sMin").value || 0);
@@ -193,6 +192,5 @@ async function speichern() {
     };
 
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-    const waText = `📊 *SCHICHTBERICHT*\n👤 *Sender:* ${currentUser}\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}`;
-    window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(waText)}`;
+    window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent("📊 *SCHICHTBERICHT*\n👤 *Sender:* "+currentUser+"\n📅 *Datum:* "+data.datum+"\n🕒 *Schicht:* "+data.schicht+"\n🏭 *Anlage:* "+data.anlage+"\n\n📦 *PRODUKTION:*\n"+artikelText)}`;
 }
