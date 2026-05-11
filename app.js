@@ -1,8 +1,8 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbxAeCFzve__yBQYjaR7p6184Zwn-3iCtvE4gwSWS7SqU2LvdgcGEpwn6vFi7fV4ubzQiw/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzbtiAY8VPhcc5LjxO1eVEmu-iG3m_d0PP89iFQiVjI6u6JRwXqba36E8fp7fINExorHA/exec";
 
 // --- DATEN ---
 const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
-const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
+const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM değil voll", "C103 CIM beschädigt", "Sonstige"];
 const imAusschussCodes = ["Anfahrschrott", "Teile değil voll", "Teile gerissen veya beschädigt", "Sonstige"];
 const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
 const purStoerungCodes = ["4-2-01 Werkzeug", "4-2-02 Instandhaltung", "4-2-03 POLY Überdrück", "4-2-04 Mischkopf", "4-2-08 Reinigung", "5-2-01 Logistik", "5-2-06 Unterbesetzung", "Sonstige"];
@@ -49,23 +49,35 @@ document.getElementById("addWorkerBtn").addEventListener("click", () => {
 // ARTIKEL
 document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const anlageVal = document.getElementById("anlage").value;
-    if(!anlageVal) return alert("Bitte zuerst Anlage wählen!");
+    if(!anlageVal) return alert("Anlage wählen!");
     const isCOM = anlageVal === "COM";
     const div = document.createElement("div");
     div.className = "artikel-box";
-    div.innerHTML = `
-        <button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button>
-        <label>Artikelbezeichnung</label><input class="artBez" type="text">
-        ${isCOM ? '<label>Dauer (Min)</label><input class="artDauer" type="number" value="0">' : ''}
+    
+    let html = `<button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button>`;
+    
+    if(isCOM) {
+        html += `
+            <div class="grid">
+                <div><label>Artikel</label><input class="artBez" type="text"></div>
+                <div><label>Artikelnummer</label><input class="artNum" type="text"></div>
+            </div>
+            <label>Dauer inkl. Störung (Min)</label><input class="artDauer" type="number" value="0">`;
+    } else {
+        html += `<label>Artikel</label><input class="artBez" type="text">`;
+    }
+
+    html += `
         <div class="grid">
             <div><label>Gut (${isCOM ? 'kg' : 'stk'})</label><input class="gut" type="number"></div>
-            <div><label>Aus (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number"></div>
+            <div><label>Aus Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number"></div>
         </div>
         <div class="aus-area"></div>
-        <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Code</button>
+        <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Grund</button>
         <div class="stoer-area" style="margin-top:10px;"></div>
         <button type="button" class="add-btn" style="background:#64748b" onclick="addStoerRow(this, '${anlageVal}')">+ Störung</button>
     `;
+    div.innerHTML = html;
     document.getElementById("artikelContainer").appendChild(div);
 });
 
@@ -92,22 +104,26 @@ function addStoerRow(btn, anlage) {
 
 // SPEICHERN
 async function speichern() {
+    const anlageVal = document.getElementById("anlage").value;
     let staff = [];
     document.querySelectorAll(".workerSelect").forEach(s => staff.push(s.value));
-    const mitarbeiterText = staff.join(", ");
     
     let report = "";
+    let totalMin = 0;
+
     document.querySelectorAll(".artikel-box").forEach(box => {
         const bez = box.querySelector(".artBez").value;
+        const num = box.querySelector(".artNum") ? box.querySelector(".artNum").value : "";
         const g = box.querySelector(".gut").value || 0;
         const a = box.querySelector(".ausTotal").value || 0;
-        const d = box.querySelector(".artDauer") ? box.querySelector(".artDauer").value : null;
+        const d = box.querySelector(".artDauer") ? parseInt(box.querySelector(".artDauer").value) : 0;
         
-        report += `• ${bez} ${d ? '('+d+' Min)' : ''} | G:${g} A:${a}\n`;
+        totalMin += d;
+        report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${a}\n`;
         
         box.querySelectorAll(".aus-row").forEach(r => {
             const m = r.querySelector(".aMenge").value;
-            if(m) report += `  └─ ${r.querySelector(".aCode").value}: ${m}\n`;
+            if(m) report += `  └─ Aus: ${r.querySelector(".aCode").value} (${m})\n`;
         });
         box.querySelectorAll(".stoer-row").forEach(r => {
             const min = r.querySelector(".sMin").value;
@@ -116,16 +132,21 @@ async function speichern() {
         });
     });
 
+    // Compound Zaman Kontrolü
+    if(anlageVal === "COM" && totalMin !== 480) {
+        alert(`Achtung: Die Gesamtzeit beträgt ${totalMin} Min. (Soll: 480 Min). Der Bericht wird trotzdem gesendet.`);
+    }
+
     const data = {
         datum: document.getElementById("datum").value,
         schicht: document.getElementById("schicht").value,
-        mitarbeiter: mitarbeiterText,
-        anlage: document.getElementById("anlage").value,
+        mitarbeiter: staff.join(", "),
+        anlage: anlageVal,
         artikel: report
     };
 
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
     
-    const waText = `📊 *SCHICHTBERICHT*\n🏭 *Anlage:* ${data.anlage}\n👥 *Team:* ${mitarbeiterText}\n👤 *Sender:* ${localStorage.getItem("schichtb_user")}\n\n📦 *PRODUKTION:*\n${report}`;
+    const waText = `📊 *SCHICHTBERICHT*\n🏭 *Anlage:* ${data.anlage}\n👥 *Team:* ${data.mitarbeiter}\n👤 *Sender:* ${localStorage.getItem("schichtb_user")}\n\n📦 *PRODUKTION:*\n${report}`;
     window.location.href = `https://wa.me/${document.getElementById("waEmpfaenger").value}?text=${encodeURIComponent(waText)}`;
 }
