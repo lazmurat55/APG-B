@@ -35,9 +35,10 @@ const gesamtDauerBox = document.getElementById("gesamtDauerBox");
 
 if (anlage) {
     anlage.addEventListener("change", () => {
-        // Compound seçildiyse süre kutusunu göster, değilse gizle
+        // Gesamtdauer-Box nur bei Compound (COM) anzeigen
         gesamtDauerBox.style.display = (anlage.value === "COM") ? "block" : "none";
-        document.getElementById("ftBox").style.display = anlage.value.startsWith("PUR") ? "block" : "none";
+        const ftBox = document.getElementById("ftBox");
+        if(ftBox) ftBox.style.display = anlage.value.startsWith("PUR") ? "block" : "none";
     });
 }
 
@@ -109,19 +110,20 @@ async function speichern() {
     const workerBoxes = document.querySelectorAll(".worker-box");
     const artikelBoxes = document.querySelectorAll(".artikel-box");
 
-    // 1. PFLICHTFELDER
+    // 1. PFLICHTFELDER (Zorunlu Alanlar)
     if (!anlageVal) return alert("❌ Fehler: Bitte Anlage wählen!");
     if (workerBoxes.length === 0) return alert("❌ Fehler: Mitarbeiter fehlt!");
     if (artikelBoxes.length === 0) return alert("❌ Fehler: Produktion fehlt!");
 
-    // 2. ZEITKONTROLLE (NUR BEI COMPOUND)
+    // 2. ZEITKONTROLLE (NUR BEI COMPOUND - WARNUNG ABER SENDEN ERLAUBT)
     if (anlageVal === "COM") {
         const sollDauer = parseInt(document.getElementById("gesamtDauerInput").value || 480);
         let istDauer = 0;
         artikelBoxes.forEach(box => istDauer += parseInt(box.querySelector(".artikelDauer").value || 0));
 
         if (istDauer !== sollDauer) {
-            return alert(`⚠️ Zeit-Fehler (Compound)!\nGesamtzeit der Artikel: ${istDauer} Min.\nSoll-Zeit: ${sollDauer} Min.\nBitte anpassen!`);
+            // Sadece uyarı veriyor, durdurmuyor
+            confirm(`⚠️ ZEIT-WARNUNG!\n\nDie Gesamtzeit der Artikel beträgt ${istDauer} Min.\nDie Schichtdauer beträgt ${sollDauer} Min.\n\nMöchten Sie den Bericht trotzdem senden?`);
         }
     }
 
@@ -135,6 +137,14 @@ async function speichern() {
         const dur = box.querySelector(".artikelDauer").value;
         const unit = (anlageVal === "COM") ? "Kg" : "Stk";
         artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}${anlageVal === "COM" ? ` | Zeit: ${dur} Min` : ""}\n`;
+        box.querySelectorAll(".fehlerContainer .grid").forEach(row => {
+            artikelText += `  └─ ${row.querySelector(".fehlerSelect").value}: ${row.querySelector(".fehlerMenge").value}${unit}\n`;
+        });
+    });
+
+    let stoerungText = "";
+    document.querySelectorAll(".stoerung-box").forEach(box => {
+        stoerungText += `• ${box.querySelector(".stoerungText").value} (${box.querySelector(".stoerungZeit").value} Min)\n`;
     });
 
     const data = {
@@ -143,9 +153,13 @@ async function speichern() {
         mitarbeiter: [...document.querySelectorAll(".workerSelect")].map(s => s.value).join(", "),
         anlage: anlageVal,
         artikel: artikelText,
-        stoerung: [...document.querySelectorAll(".stoerung-box")].map(b => `• ${b.querySelector(".stoerungText").value} (${b.querySelector(".stoerungZeit").value} Min)`).join("\n")
+        stoerung: stoerungText
     };
 
+    // Google Sheets
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
-    window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(JSON.stringify(data))}`;
+
+    // WhatsApp
+    const waText = `📊 *SCHICHTBERICHT*\n\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}\n⚠️ *STÖRUNGEN:*\n${stoerungText}`;
+    window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(waText)}`;
 }
