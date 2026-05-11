@@ -2,10 +2,14 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbx55ShhJiujy6xj8lJZoD
 
 // --- DATEN ---
 const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
+
 const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
+
 const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen veya beschädigt", "Sonstige"];
+
 const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
-const purStoerungCodes = const purStoerungCodes = [
+
+const purStoerungCodes = [
     "4-2-01 Werkzeug / Form", 
     "4-2-02 Instandhaltung (Maschine)", 
     "4-2-03 POLY / ISO Überdruck", 
@@ -25,6 +29,7 @@ const purStoerungCodes = const purStoerungCodes = [
     "5-2-07 Qualitätsprobleme (Stopp)", 
     "Sonstige (Siehe Kommentar)"
 ];
+
 window.onload = () => {
     document.getElementById("datum").value = new Date().toISOString().split("T")[0];
     if (localStorage.getItem("schichtb_user")) {
@@ -48,7 +53,7 @@ async function loginKontrol() {
     } catch (e) { alert("Verbindungsfehler!"); }
 }
 
-// --- LIVE VALIDATION FUNCTION (CANLI KONTROL) ---
+// --- LIVE VALIDATION FUNCTION ---
 function validateAusschuss(box) {
     const totalInput = box.querySelector(".ausTotal");
     const warnung = box.querySelector(".ausWarnung");
@@ -119,7 +124,6 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     div.innerHTML = html;
     document.getElementById("artikelContainer").appendChild(div);
 
-    // Canlı kontrol için dinleyici ekle
     div.querySelector(".ausTotal").addEventListener("input", () => validateAusschuss(div));
 });
 
@@ -129,10 +133,9 @@ function addAusRow(btn, anlage) {
     const row = document.createElement("div");
     row.className = "grid aus-row";
     let list = anlage.startsWith("PUR") ? purAusschussCodes : (anlage.startsWith("IM") || anlage === "CIM1" ? imAusschussCodes : comAusschussCodes);
-    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
+    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
     area.appendChild(row);
 
-    // Yeni eklenen miktar kutusuna canlı dinleyici ekle
     row.querySelector(".aMenge").addEventListener("input", () => validateAusschuss(box));
 }
 
@@ -141,7 +144,7 @@ function addStoerRow(btn, anlage) {
     const row = document.createElement("div");
     row.className = "grid stoer-row";
     if(anlage.startsWith("PUR")) {
-        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
     } else {
         row.innerHTML = `<input type="text" class="sGrund" placeholder="Grund" style="flex:2"><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
     }
