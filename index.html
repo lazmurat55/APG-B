@@ -21,7 +21,7 @@
 
     <div id="mainForm" style="display:none;">
         <div class="card">
-            <h1>Schicht B</h1>
+            <h1>Schicht B Bericht</h1>
             <div class="grid">
                 <div>
                     <label>Datum</label>
@@ -39,7 +39,7 @@
             <hr>
             <h2>Mitarbeiter</h2>
             <div id="workerContainer"></div>
-            <button id="addWorkerBtn" class="secondary">+ Mitarbeiter</button>
+            <button id="addWorkerBtn" class="secondary">+ Mitarbeiter hinzufügen</button>
             <hr>
             <label>Anlage</label>
             <select id="anlage">
@@ -59,7 +59,7 @@
                 </optgroup>
             </select>
 
-            <div id="ftBox"><label>Formträger (FT)</label><div class="ft-grid"><label><input type="checkbox"> FT1</label><label><input type="checkbox"> FT2</label><label><input type="checkbox"> FT3</label><label><input type="checkbox"> FT4</label><label><input type="checkbox"> FT5</label><label><input type="checkbox"> FT6</label></div></div>
+            <div id="ftBox" style="display:none;"><label>Formträger (FT)</label><div class="ft-grid"><label><input type="checkbox"> FT1</label><label><input type="checkbox"> FT2</label><label><input type="checkbox"> FT3</label><label><input type="checkbox"> FT4</label><label><input type="checkbox"> FT5</label><label><input type="checkbox"> FT6</label></div></div>
             
             <hr>
             <h2>Produktion</h2>
@@ -67,17 +67,24 @@
             <button id="addArtikelBtn" class="secondary">+ Artikel hinzufügen</button>
             
             <hr>
-            <h2>Störungen</h2>
+            <h2>Störungen (Zusatzinfo)</h2>
             <div id="stoerungContainer"></div>
             <button id="addStoerungBtn" class="secondary">+ Störung hinzufügen</button>
             
+            <hr>
+            <div class="card" style="background: #f0f4f8; border: 2px solid #2d4154;">
+                <label><strong>Gesamtdauer der Schicht (Minuten)</strong></label>
+                <input type="number" id="gesamtDauerInput" value="480" style="font-weight: bold; font-size: 1.2rem; color: #d32f2f;">
+                <small>* Standard 480 Min. Bei Mehrarbeit bitte anpassen.</small>
+            </div>
+
             <hr>
             <label>Empfänger (WA)</label>
             <select id="waEmpfaenger">
                 <option value="4917623638794">Herr Keskin Murat</option>
                 <option value="4915222616238">Herr Uzun</option>
             </select>
-            <button onclick="speichern()" class="main-btn">SPEICHERN & WHATSAPP</button>
+            <button onclick="speichern()" class="main-btn">SPEICHERN & SENDEN</button>
         </div>
     </div>
     <script src="app.js"></script>
