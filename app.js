@@ -26,7 +26,7 @@ async function loginKontrol() {
             document.getElementById("loginBox").style.display = "none";
             document.getElementById("mainForm").style.display = "block";
             setiOtomatikTarih();
-        } else { alert("Zugriff verweigert!"); }
+        } else { alert("Zugriff verweigert! Falsche Anmeldedaten."); }
     } catch (e) { alert("Verbindungsfehler!"); }
 }
 
@@ -59,7 +59,6 @@ addWorkerBtn.addEventListener("click", () => {
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
 });
 
-// --- ARTIKEL EKLEME ---
 addArtikelBtn.addEventListener("click", () => {
     if(!anlage.value) return alert("Bitte zuerst Anlage wählen!");
     const isCompound = (anlage.value === "COM");
@@ -106,9 +105,10 @@ async function speichern() {
     const anlageVal = anlage.value;
     const workerBoxes = document.querySelectorAll(".worker-box");
     const artikelBoxes = document.querySelectorAll(".artikel-box");
+    const currentUser = localStorage.getItem("schichtb_user") || "Unbekannt";
 
     if (!anlageVal || workerBoxes.length === 0 || artikelBoxes.length === 0) {
-        return alert("❌ Fehler: Bitte alle Pflichtfelder ausfüllen (Anlage, Mitarbeiter, Produktion)!");
+        return alert("❌ Fehler: Bitte Anlage, Mitarbeiter und Produktion vollständig ausfüllen!");
     }
 
     let artikelText = "";
@@ -145,7 +145,7 @@ async function speichern() {
     if (anlageVal === "COM") {
         const sollDauer = parseInt(document.getElementById("gesamtDauerInput").value || 480);
         if (istDauerGesamt !== sollDauer) {
-            if(!confirm(`⚠️ ZEIT-WARNUNG!\nSumme Artikelzeiten: ${istDauerGesamt} Min.\nErwartet: ${sollDauer} Min.\n\nTrotzdem senden?`)) return;
+            if(!confirm(`⚠️ ZEIT-WARNUNG!\nSumme Artikelzeiten: ${istDauerGesamt} Min.\nSoll-Zeit: ${sollDauer} Min.\n\nTrotzdem senden?`)) return;
         }
     }
 
@@ -155,11 +155,11 @@ async function speichern() {
         mitarbeiter: [...document.querySelectorAll(".workerSelect")].map(s => s.value).join(", "),
         anlage: anlageVal,
         artikel: artikelText,
-        stoerung: "In Artikel enthalten"
+        sender: currentUser
     };
 
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
 
-    const waText = `📊 *SCHICHTBERICHT*\n\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}`;
+    const waText = `📊 *SCHICHTBERICHT*\n👤 *Erstellt von:* ${currentUser}\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}`;
     window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(waText)}`;
 }
