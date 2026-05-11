@@ -5,8 +5,26 @@ const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E
 const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
 const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen veya beschädigt", "Sonstige"];
 const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
-const purStoerungCodes = ["4-2-01 Werkzeug", "4-2-02 Instandhaltung", "4-2-03 POLY Überdrück", "4-2-04 Mischkopf", "4-2-08 Reinigung", "5-2-01 Logistik", "5-2-06 Unterbesetzung", "Sonstige"];
-
+const purStoerungCodes = const purStoerungCodes = [
+    "4-2-01 Werkzeug / Form", 
+    "4-2-02 Instandhaltung (Maschine)", 
+    "4-2-03 POLY / ISO Überdruck", 
+    "4-2-04 Mischkopf / Düsen", 
+    "4-2-05 Lichtschranke / Sicherheit", 
+    "4-2-06 Roboter / Programmfehler", 
+    "4-2-07 Heizung / Temperatur", 
+    "4-2-08 Reinigung / Wartung", 
+    "4-2-10 Materialwechsel (Farbe/Poly)", 
+    "4-2-11 Not-Aus / Stromausfall", 
+    "5-2-01 Logistik (Materialmangel)", 
+    "5-2-02 Werkzeugwechsel (Umbau)", 
+    "5-2-03 Versuchsaufbau (Test)", 
+    "5-2-04 Schichtwechsel / Besprechung", 
+    "5-2-05 IT-Probleme / Scanner", 
+    "5-2-06 Unterbesetzung (Personal)", 
+    "5-2-07 Qualitätsprobleme (Stopp)", 
+    "Sonstige (Siehe Kommentar)"
+];
 window.onload = () => {
     document.getElementById("datum").value = new Date().toISOString().split("T")[0];
     if (localStorage.getItem("schichtb_user")) {
