@@ -15,7 +15,7 @@ window.onload = () => {
     }
 };
 
-// LOGIN
+// --- LOGIN ---
 async function loginKontrol() {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
@@ -30,7 +30,27 @@ async function loginKontrol() {
     } catch (e) { alert("Verbindungsfehler!"); }
 }
 
-// ANLAGE CHANGE
+// --- LIVE VALIDATION FUNCTION (CANLI KONTROL) ---
+function validateAusschuss(box) {
+    const totalInput = box.querySelector(".ausTotal");
+    const warnung = box.querySelector(".ausWarnung");
+    const mingeInputs = box.querySelectorAll(".aMenge");
+    
+    let soll = parseInt(totalInput.value) || 0;
+    let ist = 0;
+    mingeInputs.forEach(inp => ist += (parseInt(inp.value) || 0));
+
+    if (ist !== soll && soll > 0) {
+        warnung.innerText = `⚠️ Summe (${ist}) stimmt nicht mit Gesamt (${soll}) überein!`;
+        warnung.style.display = "block";
+        return false;
+    } else {
+        warnung.style.display = "none";
+        return true;
+    }
+}
+
+// --- ANLAGE CHANGE ---
 document.getElementById("anlage").addEventListener("change", (e) => {
     const val = e.target.value;
     document.getElementById("ftBox").style.display = val.startsWith("PUR") ? "block" : "none";
@@ -38,7 +58,7 @@ document.getElementById("anlage").addEventListener("change", (e) => {
     document.getElementById("artikelContainer").innerHTML = "";
 });
 
-// MITARBEITER
+// --- MITARBEITER ---
 document.getElementById("addWorkerBtn").addEventListener("click", () => {
     const div = document.createElement("div");
     div.className = "worker-box";
@@ -46,7 +66,7 @@ document.getElementById("addWorkerBtn").addEventListener("click", () => {
     document.getElementById("workerContainer").appendChild(div);
 });
 
-// ARTIKEL
+// --- ARTIKEL ---
 document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const anlageVal = document.getElementById("anlage").value;
     if(!anlageVal) return alert("Bitte zuerst Anlage wählen!");
@@ -72,6 +92,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
             <div><label>Gut (${isCOM ? 'kg' : 'stk'})</label><input class="gut" type="number"></div>
             <div><label>Ausschuss Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
         </div>
+        <p class="ausWarnung" style="color:red; font-weight:bold; font-size:12px; margin-top:5px; display:none;"></p>
         <div class="aus-area"></div>
         <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Grund</button>
         <div class="stoer-area" style="margin-top:10px;"></div>
@@ -79,15 +100,22 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     `;
     div.innerHTML = html;
     document.getElementById("artikelContainer").appendChild(div);
+
+    // Canlı kontrol için dinleyici ekle
+    div.querySelector(".ausTotal").addEventListener("input", () => validateAusschuss(div));
 });
 
 function addAusRow(btn, anlage) {
+    const box = btn.closest(".artikel-box");
     const area = btn.previousElementSibling;
     const row = document.createElement("div");
     row.className = "grid aus-row";
     let list = anlage.startsWith("PUR") ? purAusschussCodes : (anlage.startsWith("IM") || anlage === "CIM1" ? imAusschussCodes : comAusschussCodes);
-    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option>${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
     area.appendChild(row);
+
+    // Yeni eklenen miktar kutusuna canlı dinleyici ekle
+    row.querySelector(".aMenge").addEventListener("input", () => validateAusschuss(box));
 }
 
 function addStoerRow(btn, anlage) {
@@ -102,7 +130,7 @@ function addStoerRow(btn, anlage) {
     area.appendChild(row);
 }
 
-// --- SPEICHERN (Validation eklenmiş hali) ---
+// --- SPEICHERN ---
 async function speichern() {
     const anlageVal = document.getElementById("anlage").value;
     let staff = [];
@@ -111,53 +139,39 @@ async function speichern() {
     
     let report = "";
     let totalTime = 0;
-    let hasError = false;
+    let allValid = true;
 
-    const boxes = document.querySelectorAll(".artikel-box");
-    
-    for (let box of boxes) {
+    document.querySelectorAll(".artikel-box").forEach(box => {
+        if(!validateAusschuss(box)) {
+            allValid = false;
+        }
+
         const bez = box.querySelector(".artBez").value;
         const num = box.querySelector(".artNum") ? box.querySelector(".artNum").value : "";
         const g = box.querySelector(".gut").value || 0;
-        const aTotalSoll = parseInt(box.querySelector(".ausTotal").value) || 0;
+        const a = box.querySelector(".ausTotal").value || 0;
         const d = box.querySelector(".artDauer") ? parseInt(box.querySelector(".artDauer").value) : 0;
         
-        let aSumDetail = 0;
-        let detailsText = "";
-
-        // Ausschuss detaylarını topla ve kontrol et
-        const ausRows = box.querySelectorAll(".aus-row");
-        ausRows.forEach(r => {
-            const m = parseInt(r.querySelector(".aMenge").value) || 0;
-            const code = r.querySelector(".aCode").value;
-            if(m > 0) {
-                aSumDetail += m;
-                detailsText += `  └─ Aus: ${code} (${m})\n`;
-            }
-        });
-
-        // KRİTİK KONTROL: Toplam fire miktarı, alt nedenlerin toplamına eşit mi?
-        if (aTotalSoll !== aSumDetail) {
-            alert(`Hata: ${bez} için "Ausschuss Gesamt" (${aTotalSoll}) ile alt nedenlerin toplamı (${aSumDetail}) birbirine eşit değil!`);
-            hasError = true;
-            break; 
-        }
-
         totalTime += d;
-        report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${aTotalSoll}\n`;
-        report += detailsText;
-
-        // Störung detayları
+        report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${a}\n`;
+        
+        box.querySelectorAll(".aus-row").forEach(r => {
+            const m = r.querySelector(".aMenge").value;
+            if(m) report += `  └─ Aus: ${r.querySelector(".aCode").value} (${m})\n`;
+        });
+        
         box.querySelectorAll(".stoer-row").forEach(r => {
             const min = r.querySelector(".sMin").value;
             const grund = r.querySelector(".sCode") ? r.querySelector(".sCode").value : r.querySelector(".sGrund").value;
             if(min) report += `  └─ ⚠️ Störung: ${grund} (${min} Min)\n`;
         });
+    });
+
+    if(!allValid) {
+        alert("❌ Fehler: Die Ausschuss-Summen stimmen nicht überein! Bitte korrigieren.");
+        return;
     }
 
-    if (hasError) return; // Eğer fire miktarı tutmuyorsa işlemi durdur.
-
-    // Compound Süre Uyarısı
     if(anlageVal === "COM" && totalTime !== 480) {
         alert(`Achtung: Die Gesamtzeit beträgt ${totalTime} Min (Soll: 480 Min).`);
     }
