@@ -1,8 +1,8 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbz7MaRyed4Owfjlbf0OVZ2NRwUX8Bwn7dq712m3lTsJtTeJGw_YOECSc0kMU-VNJgWxbg/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbx-MU_xIIVVfDNN378psv9uW5UxT7PvM0_2i1t5T-Ac2QPSbRp9AimWeFBa5B1OYgWg2A/exec";
 
 const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
 const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
-const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen oder beschädigt", "Sonstige"];
+const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen veya beschädigt", "Sonstige"];
 const comAusschussCodes = ["Anfahrschrott", "Sonstiger"];
 const purStoerungCodes = ["4-2-01 Werkzeug", "4-2-02 Instandhaltung", "4-2-03 Überdrück", "4-2-04 Mischkopf", "4-2-08 Reinigung", "5-2-01 Logistik", "5-2-06 Unterbesetzung", "Sonstige"];
 
@@ -17,12 +17,13 @@ window.onload = () => {
 async function loginKontrol() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
+    if(!user || !pass) return alert("Benutzername/Passwort fehlt!");
     const resp = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
     const res = await resp.text();
     if(res === "active") {
         localStorage.setItem("schichtb_user", user);
         location.reload();
-    } else alert("Hatalı Giriş!");
+    } else { alert("Login fehlgeschlagen: " + res); }
 }
 
 document.getElementById("anlage").addEventListener("change", (e) => {
@@ -80,7 +81,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
 
 async function speichern() {
     const artikels = document.querySelectorAll(".artikel-box");
-    if(artikels.length === 0) return alert("Artikel ekle!");
+    if(artikels.length === 0) return alert("Bitte Artikel hinzufügen!");
 
     let artikelText = "";
     artikels.forEach(box => {
