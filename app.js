@@ -63,6 +63,26 @@ document.getElementById("addWorkerBtn").addEventListener("click", () => {
     sel.addEventListener("change", () => ext.style.display = sel.value === "Sonstige" ? "block" : "none");
 });
 
+// --- AUSSCHUSS KONTROL FONKSIYONU ---
+function checkAusschussSum(box) {
+    const totalInput = box.querySelector(".ausschussInput");
+    const warnung = box.querySelector(".ausWarnung");
+    const details = box.querySelectorAll(".ausMenge");
+    
+    let totalSoll = parseInt(totalInput.value) || 0;
+    let currentSum = 0;
+    details.forEach(inp => currentSum += (parseInt(inp.value) || 0));
+
+    if (totalSoll > 0 && currentSum !== totalSoll) {
+        warnung.style.display = "block";
+        warnung.innerText = `⚠️ Summe der Codes (${currentSum}) stimmt nicht mit Gesamt-Ausschuss (${totalSoll}) überein! Bitte anpassen.`;
+        return false;
+    } else {
+        warnung.style.display = "none";
+        return true;
+    }
+}
+
 // ARTIKEL ADD
 document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const selectedAnlage = anlage.value;
@@ -76,7 +96,6 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const box = document.createElement("div");
     box.classList.add("artikel-box");
 
-    // ARTIKEL ZEILE (Artikelnummer nur bei COM)
     let artikelRowHtml = `<div><label>Artikel</label><input class="artikelBezeichnung" type="text"></div>`;
     if (isCOM) {
         artikelRowHtml += `<div><label>Artikelnummer</label><input class="artikelnummerInput" type="text"></div>`;
@@ -88,7 +107,8 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
         <div class="grid" style="margin-top:10px;">
             <div><label>Gutmenge (${unit})</label><input class="gutteileInput" type="number"></div>
             <div><label>Ausschuss Gesamt (${unit})</label><input class="ausschussInput" type="number"></div>
-        </div>`;
+        </div>
+        <p class="ausWarnung" style="color:#d32f2f; font-size:12px; font-weight:bold; display:none; margin-top:5px;"></p>`;
 
     if (isPUR || isIM) {
         html += `
@@ -111,19 +131,22 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     box.innerHTML = html;
     artikelContainer.appendChild(box);
 
-    // Ausschuss Event
+    const totalAusInput = box.querySelector(".ausschussInput");
+    totalAusInput.addEventListener("input", () => checkAusschussSum(box));
+
     if (isPUR || isIM) {
         box.querySelector(".add-aus-btn").addEventListener("click", () => {
             const currentList = isPUR ? purAusschussCodes : imAusschussCodes;
             const ausOpt = currentList.map(c => `<option>${c}</option>`).join("");
             const ausRow = document.createElement("div");
             ausRow.classList.add("grid"); ausRow.style.marginTop = "5px";
-            ausRow.innerHTML = `<select class="ausSelect" style="flex:2">${ausOpt}</select><div style="display:flex; gap:5px; flex:1"><input type="number" class="ausMenge" placeholder="${unit}"><button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:red;">X</button></div>`;
+            ausRow.innerHTML = `<select class="ausSelect" style="flex:2">${ausOpt}</select><div style="display:flex; gap:5px; flex:1"><input type="number" class="ausMenge" placeholder="${unit}"><button onclick="this.parentElement.parentElement.remove(); checkAusschussSum(box);" style="background:none; border:none; color:red;">X</button></div>`;
             box.querySelector(".ausschuss-container").appendChild(ausRow);
+            
+            ausRow.querySelector(".ausMenge").addEventListener("input", () => checkAusschussSum(box));
         });
     }
 
-    // Störung Event
     box.querySelector(".add-störung-btn").addEventListener("click", () => {
         const sRow = document.createElement("div");
         sRow.classList.add("grid"); sRow.style.marginTop = "10px";
@@ -146,6 +169,13 @@ async function speichern() {
     const currentUser = localStorage.getItem("schichtb_user") || "Unbekannt";
     if (!anlageVal || artikels.length === 0) return alert("Daten unvollständig!");
 
+    // SON KONTROL: Ausschuss toplamları tutuyor mu?
+    let isValid = true;
+    artikels.forEach(box => {
+        if (!checkAusschussSum(box)) isValid = false;
+    });
+    if (!isValid) return alert("❌ Fehler: Die Ausschuss-Details stimmen nicht mit der Gesamtmenge überein! Bitte anpassen.");
+
     let artikelText = "";
     let totalMinCOM = 0;
 
@@ -161,7 +191,7 @@ async function speichern() {
         box.querySelectorAll(".ausschuss-container .grid").forEach(row => {
             const c = row.querySelector(".ausSelect").value;
             const m = row.querySelector(".ausMenge").value;
-            if(m) artikelText += `  └─ Fire: ${c} (${m})\n`;
+            if(m) artikelText += `  └─ Code: ${c} (${m})\n`;
         });
 
         box.querySelectorAll(".störung-container .grid").forEach(row => {
@@ -179,7 +209,9 @@ async function speichern() {
 
     if (anlageVal === "COM") {
         const soll = parseInt(document.getElementById("gesamtDauerInput").value || 480);
-        if (totalMinCOM !== soll) confirm(`Warnung: ${totalMinCOM} Min vs ${soll} Min. Senden?`);
+        if (totalMinCOM !== soll) {
+            if(!confirm(`Warnung: ${totalMinCOM} Min vs ${soll} Min. Trotzdem senden?`)) return;
+        }
     }
 
     const data = {
