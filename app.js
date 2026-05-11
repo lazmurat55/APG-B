@@ -35,7 +35,6 @@ const gesamtDauerBox = document.getElementById("gesamtDauerBox");
 
 if (anlage) {
     anlage.addEventListener("change", () => {
-        // Gesamtdauer-Box nur bei Compound (COM) anzeigen
         gesamtDauerBox.style.display = (anlage.value === "COM") ? "block" : "none";
         const ftBox = document.getElementById("ftBox");
         if(ftBox) ftBox.style.display = anlage.value.startsWith("PUR") ? "block" : "none";
@@ -60,6 +59,7 @@ addWorkerBtn.addEventListener("click", () => {
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
 });
 
+// --- ARTIKEL EKLEME (Compound Odaklı) ---
 addArtikelBtn.addEventListener("click", () => {
     if(!anlage.value) return alert("Bitte zuerst Anlage wählen!");
     const isCompound = (anlage.value === "COM");
@@ -78,30 +78,27 @@ addArtikelBtn.addEventListener("click", () => {
             <div><label>Ausschuss (${unit})</label><input class="ausschussGesamt" type="number"></div>
         </div>
         <div class="grid" style="margin-top:10px;">
-            <div><label>Dauer inkl. Fehler (Min)</label><input class="artikelDauer" type="number" placeholder="Minuten"></div>
-            <div style="display:flex; align-items:flex-end;"><button class="addFehlerBtn" type="button" style="width:100%; height:40px; background:#444; color:white; border:none; border-radius:4px;">+ Fehlergrund</button></div>
+            <div><label>Netto-Produktionszeit (Min)</label><input class="artikelDauer" type="number" placeholder="Nur Laufzeit"></div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="addFehlerBtn" type="button" style="width:100%; height:40px; background:#444; color:white; border:none; border-radius:4px;">+ Störung bei Artikel</button>
+            </div>
         </div>
-        <div class="fehlerBox" style="display:none; margin-top:10px;"><div class="fehlerContainer"></div></div>`;
+        <div class="fehlerBox" style="display:none; margin-top:10px;">
+            <div class="fehlerContainer"></div>
+        </div>`;
         
     artikelContainer.appendChild(box);
-    const ausschuss = box.querySelector(".ausschussGesamt");
     const fehlerBox = box.querySelector(".fehlerBox");
-    ausschuss.addEventListener("input", () => fehlerBox.style.display = ausschuss.value > 0 ? "block" : "none");
-
+    
     box.querySelector(".addFehlerBtn").addEventListener("click", () => {
+        fehlerBox.style.display = "block";
         const row = document.createElement("div");
         row.classList.add("grid"); row.style.marginTop = "10px";
-        row.innerHTML = `<div><input class="fehlerSelect" type="text" placeholder="Grund"></div><div><input class="fehlerMenge" type="number" placeholder="${unit}"></div>`;
+        row.innerHTML = `
+            <div><input class="fehlerSelect" type="text" placeholder="Fehlergrund"></div>
+            <div><input class="fehlerMenge" type="number" placeholder="Zeit (Min)"></div>`;
         box.querySelector(".fehlerContainer").appendChild(row);
     });
-    box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
-});
-
-document.getElementById("addStoerungBtn").addEventListener("click", () => {
-    const box = document.createElement("div");
-    box.classList.add("stoerung-box");
-    box.innerHTML = `<button class="delete-btn">X</button><label>Störungsgrund</label><input class="stoerungText" type="text"><label>Dauer (Min)</label><input class="stoerungZeit" type="number">`;
-    document.getElementById("stoerungContainer").appendChild(box);
     box.querySelector(".delete-btn").addEventListener("click", () => box.remove());
 });
 
@@ -110,42 +107,47 @@ async function speichern() {
     const workerBoxes = document.querySelectorAll(".worker-box");
     const artikelBoxes = document.querySelectorAll(".artikel-box");
 
-    // 1. PFLICHTFELDER (Zorunlu Alanlar)
-    if (!anlageVal) return alert("❌ Fehler: Bitte Anlage wählen!");
-    if (workerBoxes.length === 0) return alert("❌ Fehler: Mitarbeiter fehlt!");
-    if (artikelBoxes.length === 0) return alert("❌ Fehler: Produktion fehlt!");
-
-    // 2. ZEITKONTROLLE (NUR BEI COMPOUND - WARNUNG ABER SENDEN ERLAUBT)
-    if (anlageVal === "COM") {
-        const sollDauer = parseInt(document.getElementById("gesamtDauerInput").value || 480);
-        let istDauer = 0;
-        artikelBoxes.forEach(box => istDauer += parseInt(box.querySelector(".artikelDauer").value || 0));
-
-        if (istDauer !== sollDauer) {
-            // Sadece uyarı veriyor, durdurmuyor
-            confirm(`⚠️ ZEIT-WARNUNG!\n\nDie Gesamtzeit der Artikel beträgt ${istDauer} Min.\nDie Schichtdauer beträgt ${sollDauer} Min.\n\nMöchten Sie den Bericht trotzdem senden?`);
-        }
+    if (!anlageVal || workerBoxes.length === 0 || artikelBoxes.length === 0) {
+        return alert("❌ Fehler: Anlage, Mitarbeiter und Produktion sind Pflichtfelder!");
     }
 
-    // 3. DATEN SENDEN
     let artikelText = "";
+    let istDauerGesamt = 0;
+
     artikelBoxes.forEach(box => {
         const bez = box.querySelector(".artikelBezeichnung").value;
         const num = box.querySelector(".artikelnummerInput").value;
         const gut = box.querySelector(".gutteileInput").value;
         const aus = box.querySelector(".ausschussGesamt").value || 0;
-        const dur = box.querySelector(".artikelDauer").value;
+        const netDauer = parseInt(box.querySelector(".artikelDauer").value || 0);
         const unit = (anlageVal === "COM") ? "Kg" : "Stk";
-        artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}${anlageVal === "COM" ? ` | Zeit: ${dur} Min` : ""}\n`;
+        
+        let artikelFehlerText = "";
+        let artikelHataSuresi = 0;
+
         box.querySelectorAll(".fehlerContainer .grid").forEach(row => {
-            artikelText += `  └─ ${row.querySelector(".fehlerSelect").value}: ${row.querySelector(".fehlerMenge").value}${unit}\n`;
+            const fGrund = row.querySelector(".fehlerSelect").value;
+            const fZeit = parseInt(row.querySelector(".fehlerMenge").value || 0);
+            if(fGrund) {
+                artikelFehlerText += `  └─ ⚠️ ${fGrund}: ${fZeit} Min\n`;
+                artikelHataSuresi += fZeit;
+            }
         });
+
+        const toplamArtikelSuresi = netDauer + artikelHataSuresi;
+        istDauerGesamt += toplamArtikelSuresi;
+
+        artikelText += `• ${bez} (${num}) | G: ${gut}${unit} | A: ${aus}${unit}\n`;
+        artikelText += `  ⏱️ Zeit: ${toplamArtikelSuresi} Min (Netto: ${netDauer} + Störung: ${artikelHataSuresi})\n`;
+        artikelText += artikelFehlerText;
     });
 
-    let stoerungText = "";
-    document.querySelectorAll(".stoerung-box").forEach(box => {
-        stoerungText += `• ${box.querySelector(".stoerungText").value} (${box.querySelector(".stoerungZeit").value} Min)\n`;
-    });
+    if (anlageVal === "COM") {
+        const sollDauer = parseInt(document.getElementById("gesamtDauerInput").value || 480);
+        if (istDauerGesamt !== sollDauer) {
+            if(!confirm(`⚠️ ZEIT-WARNUNG!\nGesamtzeit: ${istDauerGesamt} Min.\nSoll-Zeit: ${sollDauer} Min.\nTrotzdem senden?`)) return;
+        }
+    }
 
     const data = {
         datum: document.getElementById("datum").value,
@@ -153,13 +155,11 @@ async function speichern() {
         mitarbeiter: [...document.querySelectorAll(".workerSelect")].map(s => s.value).join(", "),
         anlage: anlageVal,
         artikel: artikelText,
-        stoerung: stoerungText
+        stoerung: "In Artikel enthalten"
     };
 
-    // Google Sheets
     fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
 
-    // WhatsApp
-    const waText = `📊 *SCHICHTBERICHT*\n\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}\n⚠️ *STÖRUNGEN:*\n${stoerungText}`;
+    const waText = `📊 *SCHICHTBERICHT*\n\n📅 *Datum:* ${data.datum}\n🕒 *Schicht:* ${data.schicht}\n🏭 *Anlage:* ${data.anlage}\n\n📦 *PRODUKTION:*\n${artikelText}`;
     window.location.href = `https://api.whatsapp.com/send?phone=${document.getElementById("waEmpfaenger").value}&text=${encodeURIComponent(waText)}`;
 }
