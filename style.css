@@ -1,104 +1,81 @@
-body{
-    background:#f1f5f9;
-    font-family:Arial;
-    padding:20px;
+/* Genel Ayarlar */
+body {
+    background: #f1f5f9;
+    font-family: Arial, sans-serif;
+    padding: 10px; /* Mobilde daha dar kenar boşluğu */
+    margin: 0;
 }
 
-.card{
-    background:white;
-    padding:30px;
-    border-radius:20px;
-    max-width:700px;
-    margin:auto;
-    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-h1{
-    color:#1a2a5e;
+/* Yan yana duran alanlar için esnek yapı */
+.grid {
+    display: flex;
+    flex-wrap: wrap; /* Sığmazsa alt satıra geç */
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-h2{
-    color:#1a2a5e;
-    margin-top:30px;
+.grid > div {
+    flex: 1;
+    min-width: 140px; /* Mobilde çok daralmasını engeller */
 }
 
-p{
-    color:gray;
+/* Form Elemanları */
+input, select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 16px; /* iPhone'un otomatik zoom yapmasını engeller */
+    box-sizing: border-box;
 }
 
-label{
-    display:block;
-    margin-top:20px;
-    margin-bottom:10px;
-    font-weight:bold;
+/* Ausschuss ve Störung satırları için özel düzenleme */
+.aus-row, .stoer-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
-select,
-input{
-    width:100%;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid #cbd5e1;
-    font-size:16px;
-    box-sizing:border-box;
+.aus-row div, .stoer-row div {
+    flex: 2;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
+.aus-row input[type="number"], .stoer-row input[type="number"] {
+    flex: 1;
+    min-width: 60px;
 }
 
-.ft-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:10px;
-    background:#f8fafc;
-    padding:15px;
-    border-radius:15px;
+.delete-btn-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.ft-grid label{
-    margin:0;
-}
-
-#ftBox{
-    display:none;
-}
-
-button{
-    width:100%;
-    margin-top:20px;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    background:#1a2a5e;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-}
-
-.artikel-box,
-.stoerung-box,
-.worker-box{
-    background:#f8fafc;
-    padding:20px;
-    border-radius:15px;
-    margin-top:20px;
-}
-
-.delete-btn{
-    width:40px;
-    height:40px;
-    background:#ef4444;
-    margin-top:0;
-    margin-left:auto;
-    display:block;
-}
-
-hr{
-    margin-top:30px;
-    margin-bottom:30px;
-    border:none;
-    border-top:1px solid #e2e8f0;
+/* Hata Mesajı */
+.ausWarnung {
+    color: #ef4444;
+    background: #fee2e2;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 5px 0;
+    border: 1px solid #fecaca;
 }
