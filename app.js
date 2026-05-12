@@ -43,17 +43,30 @@ async function loginKontrol() {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
     if(!user || !pass) return alert("Benutzername und Passwort eingeben!");
+    
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "PRÜFUNG...";
+
     try {
         const resp = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
         const result = await resp.text();
         if (result === "active") {
             localStorage.setItem("schichtb_user", user);
             location.reload();
-        } else alert("Fehler: " + result);
-    } catch (e) { alert("Verbindungsfehler!"); }
+        } else {
+            alert("Fehler: " + result);
+            btn.disabled = false;
+            btn.innerText = "EINLOGGEN";
+        }
+    } catch (e) { 
+        alert("Verbindungsfehler!"); 
+        btn.disabled = false;
+        btn.innerText = "EINLOGGEN";
+    }
 }
 
-// --- LIVE VALIDATION FUNCTION ---
+// --- LIVE VALIDATION ---
 function validateAusschuss(box) {
     const totalInput = box.querySelector(".ausTotal");
     const warnung = box.querySelector(".ausWarnung");
@@ -85,7 +98,7 @@ document.getElementById("anlage").addEventListener("change", (e) => {
 document.getElementById("addWorkerBtn").addEventListener("click", () => {
     const div = document.createElement("div");
     div.className = "worker-box";
-    div.innerHTML = `<button type="button" onclick="this.parentElement.remove()">X</button><select class="workerSelect">${workerList.map(w=>`<option value="${w}">${w}</option>`).join("")}</select>`;
+    div.innerHTML = `<button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button><select class="workerSelect">${workerList.map(w=>`<option value="${w}">${w}</option>`).join("")}</select>`;
     document.getElementById("workerContainer").appendChild(div);
 });
 
@@ -101,7 +114,7 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     
     if(isCOM) {
         html += `
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="grid">
                 <div><label>Artikel</label><input class="artBez" type="text" placeholder="z.B. BMW"></div>
                 <div><label>Artikelnummer</label><input class="artNum" type="text" placeholder="12345"></div>
             </div>
@@ -113,9 +126,9 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     html += `
         <div class="grid">
             <div><label>Gut (${isCOM ? 'kg' : 'stk'})</label><input class="gut" type="number"></div>
-            <div><label>Ausschuss Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
+            <div><label>Aus Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
         </div>
-        <p class="ausWarnung" style="color:red; font-weight:bold; font-size:12px; margin-top:5px; display:none;"></p>
+        <p class="ausWarnung" style="color:#ef4444; font-weight:bold; font-size:12px; margin-top:5px; display:none;"></p>
         <div class="aus-area"></div>
         <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Grund</button>
         <div class="stoer-area" style="margin-top:10px;"></div>
@@ -133,7 +146,7 @@ function addAusRow(btn, anlage) {
     const row = document.createElement("div");
     row.className = "grid aus-row";
     let list = anlage.startsWith("PUR") ? purAusschussCodes : (anlage.startsWith("IM") || anlage === "CIM1" ? imAusschussCodes : comAusschussCodes);
-    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
+    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" class="delete-btn" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
     area.appendChild(row);
 
     row.querySelector(".aMenge").addEventListener("input", () => validateAusschuss(box));
@@ -144,9 +157,9 @@ function addStoerRow(btn, anlage) {
     const row = document.createElement("div");
     row.className = "grid stoer-row";
     if(anlage.startsWith("PUR")) {
-        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button>`;
     } else {
-        row.innerHTML = `<input type="text" class="sGrund" placeholder="Grund" style="flex:2"><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+        row.innerHTML = `<input type="text" class="sGrund" placeholder="Grund" style="flex:2"><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button>`;
     }
     area.appendChild(row);
 }
@@ -154,6 +167,7 @@ function addStoerRow(btn, anlage) {
 // --- SPEICHERN ---
 async function speichern() {
     const anlageVal = document.getElementById("anlage").value;
+    const btn = event.target;
     let staff = [];
     document.querySelectorAll(".workerSelect").forEach(s => staff.push(s.value));
     const mitarbeiterStr = staff.join(", ");
@@ -197,6 +211,9 @@ async function speichern() {
         alert(`Achtung: Die Gesamtzeit beträgt ${totalTime} Min (Soll: 480 Min).`);
     }
 
+    btn.disabled = true;
+    btn.innerText = "SENDET...";
+
     const data = {
         datum: document.getElementById("datum").value,
         schicht: document.getElementById("schicht").value,
@@ -206,8 +223,12 @@ async function speichern() {
     };
 
     try {
-        fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+        await fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
         const waText = `📊 *SCHICHTBERICHT*\n🏭 *Anlage:* ${data.anlage}\n👥 *Team:* ${mitarbeiterStr}\n👤 *Sender:* ${localStorage.getItem("schichtb_user")}\n\n📦 *PRODUKTION:*\n${report}`;
         window.location.href = `https://wa.me/${document.getElementById("waEmpfaenger").value}?text=${encodeURIComponent(waText)}`;
-    } catch (e) { alert("Fehler beim Senden!"); }
+    } catch (e) { 
+        alert("Fehler beim Senden!"); 
+        btn.disabled = false;
+        btn.innerText = "SPEICHERN & SENDEN";
+    }
 }
