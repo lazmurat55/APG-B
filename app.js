@@ -1,37 +1,52 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbx55ShhJiujy6xj8lJZoDOoRh5wSpYpbPCbCNVoKnqR53gSUwsmKzSVv4ZXaihBQwwzVg/exec";
+[cite: 1] const scriptURL = "https://script.google.com/macros/s/AKfycbx55ShhJiujy6xj8lJZoDOoRh5wSpYpbPCbCNVoKnqR53gSUwsmKzSVv4ZXaihBQwwzVg/exec";
 
 // --- DATEN ---
 const workerList = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
 
-const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
+[cite: 2] const purAusschussCodes = ["P101 Anfahrschrott PUR", "P102 PUR nicht voll", "P103 Schaum beschädigt", "P104 Schaumbild n.i.O.", "P105 Schaumhärtung n.i.O.", "P106 Einlegefehler", "C102 CIM nicht voll", "C103 CIM beschädigt", "Sonstige"];
 
-const imAusschussCodes = ["Anfahrschrott", "Teile nicht voll", "Teile gerissen oder beschädigt", "Sonstige"];
-
-const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
-
-// DEINE EXAKTE LISTE (18 CODES)
-const purStoerungCodes = [
-    "4-2-01 Werkzeug",
-    "4-2-02 Ungepl. Instandhaltung an der Maschine",
-    "4-2-03 POLY / ISO Überdruck",
-    "4-2-04 Mischkopf n.i.O. (undicht etc.)",
-    "4-2-05 Fehler Lichtschranke",
-    "4-2-06 Trennmittelpistole verstopft/defekt",
-    "4-2-07 Formträger öffnet nicht/schließt nicht - Initiator n.i.O.",
-    "4-2-08 Reinigung des Werkzeugs (Trennmittel/Schaumreste)",
-    "4-2-09 Not Aus",
-    "5-2-01 Keine Halbfertigteile bereitgestellt (Logistik)",
-    "5-2-02 Keine Halbfertigteile von IM/CIM verfügbar",
-    "5-2-03 Anlernen / angelernt werden von Mitarbeiter",
-    "5-2-04 Keine Produktion aufgrund von Wartezeit (Einrichter etc.)",
-    "5-2-05 Mitarbeiter Umbesetzung (außerplanmäßig)",
-    "5-2-06 Unterbesetzung (Performance Verluste)",
-    "5-2-07 Scanner nicht am Arbeitsplatz / Drucker Probleme",
-    "5-2-08 Kein Leergut bereitgestellt",
-    "5-2-09 Gasflasche wechseln"
+// Resimdeki Ausschuss (6) Sütunu
+const imAusschussCodes = [
+    "6-1-01 Anfahrschrott",
+    "6-1-02 Materialumstellung",
+    "6-1-03 CIM nicht voll",
+    "6-1-04 CIM gerissen",
+    "6-1-05 Überspritzungen",
+    "Sonstige"
 ];
 
-window.onload = () => {
+[cite: 4] const comAusschussCodes = ["C101 Anfahrschrott COM", "C102 Materialwechsel", "C103 Verschmutzung", "Sonstige"];
+
+[cite: 5, 6] const purStoerungCodes = [
+    "4-2-01 Werkzeug / Form", "4-2-02 Instandhaltung (Maschine)", "4-2-03 POLY / ISO Überdruck", 
+    "4-2-04 Mischkopf / Düsen", "4-2-05 Lichtschranke / Sicherheit", "4-2-06 Roboter / Programmfehler", 
+    "4-2-07 Heizung / Temperatur", "4-2-08 Reinigung / Wartung", "4-2-10 Materialwechsel (Farbe/Poly)", 
+    "4-2-11 Not-Aus / Stromausfall", "5-2-01 Logistik (Materialmangel)", "5-2-02 Werkzeugwechsel (Umbau)",
+    "5-2-03 Versuchsaufbau (Test)", "5-2-04 Schichtwechsel / Besprechung", "5-2-05 IT-Probleme / Scanner", 
+    "5-2-06 Unterbesetzung (Personal)", "5-2-07 Qualitätsprobleme (Stopp)", "Sonstige (Siehe Kommentar)"
+];
+
+// Resimdeki 3, 4 ve 5 Numaralı Sütunlar (Störung olarak)
+const imStoerungCodes = [
+    "3-01 Werkzeugwechsel",
+    "3-02 Materialumstellung",
+    "4-1-01 Ungepl. Instandhaltung am Werkzeug",
+    "4-1-02 Ungepl. Instandhaltung an der Maschine",
+    "4-1-03 Materialförderung gestört",
+    "4-1-04 Probleme Dosiereinheit",
+    "4-1-05 Probleme Schließeinheit",
+    "4-1-06 Probleme Teileentnahme (Greifer)",
+    "4-1-07 Probleme Werkzeugheizung",
+    "4-1-08 Probleme Beflammprozess",
+    "4-1-09 Entnahmeprobleme aufgrund vom Compound",
+    "5-1-01 Materialmangel (Compound)",
+    "5-1-02 Anlernen von Mitarbeiter",
+    "5-1-03 Keine Produktion aufgrund von Wartezeit",
+    "5-1-04 Mitarbeiter Umbesetzung",
+    "Sonstige"
+];
+
+[cite: 7, 8] window.onload = () => {
     document.getElementById("datum").value = new Date().toISOString().split("T")[0];
     if (localStorage.getItem("schichtb_user")) {
         document.getElementById("loginBox").style.display = "none";
@@ -39,44 +54,27 @@ window.onload = () => {
     }
 };
 
-// --- LOGIN ---
-async function loginKontrol() {
+[cite: 9, 10, 11, 12, 13] async function loginKontrol() {
     const user = document.getElementById("username").value.trim();
     const pass = document.getElementById("password").value.trim();
     if(!user || !pass) return alert("Benutzername und Passwort eingeben!");
-    
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerText = "PRÜFUNG...";
-
     try {
         const resp = await fetch(`${scriptURL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
         const result = await resp.text();
         if (result === "active") {
             localStorage.setItem("schichtb_user", user);
             location.reload();
-        } else {
-            alert("Fehler: " + result);
-            btn.disabled = false;
-            btn.innerText = "EINLOGGEN";
-        }
-    } catch (e) { 
-        alert("Verbindungsfehler!"); 
-        btn.disabled = false;
-        btn.innerText = "EINLOGGEN";
-    }
+        } else alert("Fehler: " + result);
+    } catch (e) { alert("Verbindungsfehler!"); }
 }
 
-// --- LIVE VALIDATION ---
-function validateAusschuss(box) {
+[cite: 14, 15, 16, 17] function validateAusschuss(box) {
     const totalInput = box.querySelector(".ausTotal");
     const warnung = box.querySelector(".ausWarnung");
     const mingeInputs = box.querySelectorAll(".aMenge");
-    
     let soll = parseInt(totalInput.value) || 0;
     let ist = 0;
     mingeInputs.forEach(inp => ist += (parseInt(inp.value) || 0));
-
     if (ist !== soll && soll > 0) {
         warnung.innerText = `⚠️ Summe (${ist}) stimmt nicht mit Gesamt (${soll}) überein!`;
         warnung.style.display = "block";
@@ -87,7 +85,6 @@ function validateAusschuss(box) {
     }
 }
 
-// --- ANLAGE CHANGE ---
 document.getElementById("anlage").addEventListener("change", (e) => {
     const val = e.target.value;
     document.getElementById("ftBox").style.display = val.startsWith("PUR") ? "block" : "none";
@@ -95,27 +92,23 @@ document.getElementById("anlage").addEventListener("change", (e) => {
     document.getElementById("artikelContainer").innerHTML = "";
 });
 
-// --- MITARBEITER ---
-document.getElementById("addWorkerBtn").addEventListener("click", () => {
+[cite: 18] document.getElementById("addWorkerBtn").addEventListener("click", () => {
     const div = document.createElement("div");
     div.className = "worker-box";
-    div.innerHTML = `<button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button><select class="workerSelect">${workerList.map(w=>`<option value="${w}">${w}</option>`).join("")}</select>`;
+    div.innerHTML = `<button type="button" onclick="this.parentElement.remove()">X</button><select class="workerSelect">${workerList.map(w=>`<option value="${w}">${w}</option>`).join("")}</select>`;
     document.getElementById("workerContainer").appendChild(div);
 });
 
-// --- ARTIKEL ---
-document.getElementById("addArtikelBtn").addEventListener("click", () => {
+[cite: 19, 20, 21, 22, 23] document.getElementById("addArtikelBtn").addEventListener("click", () => {
     const anlageVal = document.getElementById("anlage").value;
     if(!anlageVal) return alert("Bitte zuerst Anlage wählen!");
     const isCOM = anlageVal === "COM";
     const div = document.createElement("div");
     div.className = "artikel-box";
-    
     let html = `<button type="button" class="delete-btn" onclick="this.parentElement.remove()">X</button>`;
-    
     if(isCOM) {
         html += `
-            <div class="grid">
+            <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
                 <div><label>Artikel</label><input class="artBez" type="text" placeholder="z.B. BMW"></div>
                 <div><label>Artikelnummer</label><input class="artNum" type="text" placeholder="12345"></div>
             </div>
@@ -123,13 +116,12 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     } else {
         html += `<label>Artikel</label><input class="artBez" type="text">`;
     }
-
     html += `
         <div class="grid">
             <div><label>Gut (${isCOM ? 'kg' : 'stk'})</label><input class="gut" type="number"></div>
-            <div><label>Aus Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
+            <div><label>Ausschuss Gesamt (${isCOM ? 'kg' : 'stk'})</label><input class="ausTotal" type="number" value="0"></div>
         </div>
-        <p class="ausWarnung" style="color:#ef4444; font-weight:bold; font-size:12px; margin-top:5px; display:none;"></p>
+        <p class="ausWarnung" style="color:red; font-weight:bold; font-size:12px; margin-top:5px; display:none;"></p>
         <div class="aus-area"></div>
         <button type="button" class="add-btn" onclick="addAusRow(this, '${anlageVal}')">+ Ausschuss-Grund</button>
         <div class="stoer-area" style="margin-top:10px;"></div>
@@ -137,82 +129,69 @@ document.getElementById("addArtikelBtn").addEventListener("click", () => {
     `;
     div.innerHTML = html;
     document.getElementById("artikelContainer").appendChild(div);
-
     div.querySelector(".ausTotal").addEventListener("input", () => validateAusschuss(div));
 });
 
-function addAusRow(btn, anlage) {
+[cite: 24, 25, 26, 27] function addAusRow(btn, anlage) {
     const box = btn.closest(".artikel-box");
     const area = btn.previousElementSibling;
     const row = document.createElement("div");
     row.className = "grid aus-row";
     let list = anlage.startsWith("PUR") ? purAusschussCodes : (anlage.startsWith("IM") || anlage === "CIM1" ? imAusschussCodes : comAusschussCodes);
-    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" class="delete-btn" style="position:static; width:40px; margin-left:5px;" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
+    row.innerHTML = `<select class="aCode" style="flex:2">${list.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="aMenge" placeholder="Menge" style="flex:1"><button type="button" onclick="this.parentElement.remove(); validateAusschuss(document.querySelector('.artikel-box'))">X</button>`;
     area.appendChild(row);
-
     row.querySelector(".aMenge").addEventListener("input", () => validateAusschuss(box));
 }
 
-function addStoerRow(btn, anlage) {
+[cite: 28, 29, 30] function addStoerRow(btn, anlage) {
     const area = btn.previousElementSibling;
     const row = document.createElement("div");
     row.className = "grid stoer-row";
     if(anlage.startsWith("PUR")) {
-        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" class="delete-btn" style="position:static; width:40px; margin-left:5px;" onclick="this.parentElement.remove()">X</button>`;
+        row.innerHTML = `<select class="sCode" style="flex:2">${purStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
+    } else if (anlage.startsWith("IM") || anlage === "CIM1") {
+        // Spritzguss için yeni liste
+        row.innerHTML = `<select class="sCode" style="flex:2">${imStoerungCodes.map(c=>`<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
     } else {
-        row.innerHTML = `<input type="text" class="sGrund" placeholder="Grund" style="flex:2"><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" class="delete-btn" style="position:static; width:40px; margin-left:5px;" onclick="this.parentElement.remove()">X</button>`;
+        row.innerHTML = `<input type="text" class="sGrund" placeholder="Grund" style="flex:2"><input type="number" class="sMin" placeholder="Min" style="flex:1"><button type="button" onclick="this.parentElement.remove()">X</button>`;
     }
     area.appendChild(row);
 }
 
-// --- SPEICHERN ---
-async function speichern() {
+[cite: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41] async function speichern() {
     const anlageVal = document.getElementById("anlage").value;
-    const sendBtn = event.target;
     let staff = [];
     document.querySelectorAll(".workerSelect").forEach(s => staff.push(s.value));
     const mitarbeiterStr = staff.join(", ");
-    
     let report = "";
     let totalTime = 0;
     let allValid = true;
-
     document.querySelectorAll(".artikel-box").forEach(box => {
         if(!validateAusschuss(box)) { allValid = false; }
-
         const bez = box.querySelector(".artBez").value;
         const num = box.querySelector(".artNum") ? box.querySelector(".artNum").value : "";
         const g = box.querySelector(".gut").value || 0;
         const a = box.querySelector(".ausTotal").value || 0;
         const d = box.querySelector(".artDauer") ? parseInt(box.querySelector(".artDauer").value) : 0;
-        
         totalTime += d;
         report += `• ${bez} ${num ? '['+num+']' : ''} ${d ? '('+d+' Min)' : ''} | G:${g} A:${a}\n`;
-        
         box.querySelectorAll(".aus-row").forEach(r => {
             const m = r.querySelector(".aMenge").value;
             if(m) report += `  └─ Aus: ${r.querySelector(".aCode").value} (${m})\n`;
         });
-        
         box.querySelectorAll(".stoer-row").forEach(r => {
             const min = r.querySelector(".sMin").value;
             const grund = r.querySelector(".sCode") ? r.querySelector(".sCode").value : r.querySelector(".sGrund").value;
             if(min) report += `  └─ ⚠️ Störung: ${grund} (${min} Min)\n`;
         });
     });
-
     if(!allValid) {
-        alert("❌ Fehler: Die Ausschuss-Summen stimmen nicht überein!");
+        alert("❌ Fehler: Die Ausschuss-Summen stimmen nicht überein! Bitte korrigieren.");
         return;
     }
-
     if(anlageVal === "COM" && totalTime !== 480) {
         alert(`Achtung: Die Gesamtzeit beträgt ${totalTime} Min (Soll: 480 Min).`);
     }
-
-    sendBtn.disabled = true;
-    sendBtn.innerText = "SENDET...";
-
     const data = {
         datum: document.getElementById("datum").value,
         schicht: document.getElementById("schicht").value,
@@ -220,14 +199,9 @@ async function speichern() {
         anlage: anlageVal,
         artikel: report
     };
-
     try {
-        await fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+        fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
         const waText = `📊 *SCHICHTBERICHT*\n🏭 *Anlage:* ${data.anlage}\n👥 *Team:* ${mitarbeiterStr}\n👤 *Sender:* ${localStorage.getItem("schichtb_user")}\n\n📦 *PRODUKTION:*\n${report}`;
         window.location.href = `https://wa.me/${document.getElementById("waEmpfaenger").value}?text=${encodeURIComponent(waText)}`;
-    } catch (e) { 
-        alert("Fehler!"); 
-        sendBtn.disabled = false;
-        sendBtn.innerText = "SPEICHERN & SENDEN";
-    }
+    } catch (e) { alert("Fehler beim Senden!"); }
 }
