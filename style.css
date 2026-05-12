@@ -1,81 +1,147 @@
-/* Genel Ayarlar */
+/* Genel Gövde ve Arka Plan */
 body {
     background: #f1f5f9;
-    font-family: Arial, sans-serif;
-    padding: 10px; /* Mobilde daha dar kenar boşluğu */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 15px;
     margin: 0;
 }
 
 .card {
     background: white;
-    padding: 20px;
-    border-radius: 15px;
+    padding: 25px;
+    border-radius: 20px;
     max-width: 600px;
     margin: auto;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-/* Yan yana duran alanlar için esnek yapı */
+h1, h2 {
+    color: #1a2a5e;
+    text-align: center;
+}
+
+/* Form Elemanları ve Büyük Butonlar */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #334155;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px; /* Daha rahat dokunma alanı */
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    font-size: 16px;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+/* Ana Butonlar (Büyük ve Basması Kolay) */
+button {
+    width: 100%;
+    margin-top: 15px;
+    padding: 18px; /* Kalın ve büyük butonlar */
+    border: none;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98); /* Basıldığında tık hissi */
+}
+
+.add-btn {
+    background: #475569;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.main-btn {
+    background: #10b981;
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* FT Grid Düzenlemesi (3 Üstte, 3 Altta) */
+.ft-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tam olarak 3 sütun */
+    gap: 12px;
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+}
+
+.ft-grid label {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    gap: 5px;
+}
+
+.ft-grid input[type="checkbox"] {
+    width: 25px;
+    height: 25px; /* Checkboxlar büyütüldü */
+}
+
+/* Artikel ve Diğer Kutular */
+.artikel-box, .worker-box {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 18px;
+    margin-top: 20px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
 .grid {
     display: flex;
-    flex-wrap: wrap; /* Sığmazsa alt satıra geç */
-    gap: 10px;
-    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .grid > div {
     flex: 1;
-    min-width: 140px; /* Mobilde çok daralmasını engeller */
+    min-width: 120px;
 }
 
-/* Form Elemanları */
-input, select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    font-size: 16px; /* iPhone'un otomatik zoom yapmasını engeller */
-    box-sizing: border-box;
-}
-
-/* Ausschuss ve Störung satırları için özel düzenleme */
-.aus-row, .stoer-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 5px;
-    margin-bottom: 10px;
-    background: #f8fafc;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.aus-row div, .stoer-row div {
-    flex: 2;
-}
-
-.aus-row input[type="number"], .stoer-row input[type="number"] {
-    flex: 1;
-    min-width: 60px;
-}
-
-.delete-btn-row {
+/* Küçük X Silme Butonları */
+.delete-btn {
+    width: 35px;
+    height: 35px;
     background: #ef4444;
     color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+    border-radius: 10px;
+    padding: 0;
+    line-height: 35px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.aus-row, .stoer-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: flex-start;
 }
 
 /* Hata Mesajı */
 .ausWarnung {
-    color: #ef4444;
     background: #fee2e2;
+    color: #ef4444;
     padding: 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 14px;
-    margin: 5px 0;
+    border-radius: 10px;
     border: 1px solid #fecaca;
+    margin: 10px 0;
 }
