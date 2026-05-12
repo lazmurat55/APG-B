@@ -1,139 +1,120 @@
-/* Genel Gövde ve Arka Plan */
+/* Genel Ayarlar */
 body {
     background: #f1f5f9;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 15px;
+    padding: 10px;
     margin: 0;
 }
 
 .card {
     background: white;
-    padding: 25px;
-    border-radius: 20px;
+    padding: 20px;
+    border-radius: 15px;
     max-width: 600px;
     margin: auto;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-h1, h2 {
-    color: #1a2a5e;
-    text-align: center;
-}
-
-/* Form Elemanları ve Büyük Butonlar */
-label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: #334155;
-}
-
+/* Form Elemanları - Daha Geniş ve Belirgin */
 input, select {
     width: 100%;
-    padding: 14px; /* Daha rahat dokunma alanı */
-    border-radius: 12px;
+    padding: 14px; 
+    border-radius: 10px;
     border: 1px solid #cbd5e1;
     font-size: 16px;
     box-sizing: border-box;
-    background: #fff;
+    margin-bottom: 5px;
 }
 
-/* Ana Butonlar (Büyük ve Basması Kolay) */
-button {
+/* Fire ve Arıza Satırları - İşte Burayı Düzelttik */
+.aus-row, .stoer-row {
+    display: flex;
+    flex-direction: column; /* Mobilde alt alta gelsinler ki geniş olsunlar */
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+/* Seçim Kutusu ve Sayı Alanı Yan Yana (Ama Geniş) */
+.row-content {
+    display: flex;
+    gap: 10px;
     width: 100%;
-    margin-top: 15px;
-    padding: 18px; /* Kalın ve büyük butonlar */
+    margin-bottom: 10px;
+}
+
+/* Seçim kutusu daha çok yer kaplasın */
+.aCode, .sCode, .sGrund {
+    flex: 3; 
+    min-width: 0; /* Taşırmayı önler */
+}
+
+/* Sayı girilen yer (Stk/Min) daha belirgin */
+.aMenge, .sMin {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #cbd5e1; /* Daha belirgin çerçeve */
+}
+
+/* Silme Butonu (X) */
+.row-delete-btn {
+    background: #ef4444;
+    color: white;
     border: none;
-    border-radius: 15px;
-    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.1s;
 }
 
-button:active {
-    transform: scale(0.98); /* Basıldığında tık hissi */
+/* Büyük Butonlar */
+button {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 .add-btn {
     background: #475569;
     color: white;
-    margin-bottom: 10px;
 }
 
 .main-btn {
     background: #10b981;
     color: white;
     font-size: 18px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* FT Grid Düzenlemesi (3 Üstte, 3 Altta) */
+/* FT Grid (3 Üstte, 3 Altta) */
 .ft-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Tam olarak 3 sütun */
-    gap: 12px;
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #e2e8f0;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 15px;
+    background: #f1f5f9;
+    border-radius: 10px;
 }
 
 .ft-grid label {
-    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-size: 14px;
-    gap: 5px;
 }
 
-.ft-grid input[type="checkbox"] {
+.ft-grid input {
     width: 25px;
-    height: 25px; /* Checkboxlar büyütüldü */
-}
-
-/* Artikel ve Diğer Kutular */
-.artikel-box, .worker-box {
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 18px;
-    margin-top: 20px;
-    border: 1px solid #e2e8f0;
-    position: relative;
-}
-
-.grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.grid > div {
-    flex: 1;
-    min-width: 120px;
-}
-
-/* Küçük X Silme Butonları */
-.delete-btn {
-    width: 35px;
-    height: 35px;
-    background: #ef4444;
-    color: white;
-    border-radius: 10px;
-    padding: 0;
-    line-height: 35px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.aus-row, .stoer-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
-    align-items: flex-start;
+    height: 25px;
 }
 
 /* Hata Mesajı */
@@ -141,7 +122,7 @@ button:active {
     background: #fee2e2;
     color: #ef4444;
     padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #fecaca;
-    margin: 10px 0;
+    border-radius: 8px;
+    margin: 5px 0;
+    font-size: 14px;
 }
