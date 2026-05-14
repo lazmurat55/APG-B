@@ -85,6 +85,10 @@ p{
 /* LABEL */
 
 label{
+   ```css id="h2k9qp"
+font-size:16px;
+```
+
     display:block;
     margin-top:15px;
     margin-bottom:8px;
@@ -107,6 +111,14 @@ label{
 
 input,
 select{
+   ```css id="g7x4mq"
+min-height:60px;
+
+font-size:18px;
+
+font-weight:600;
+```
+
     width:100%;
 
     background:#020617;
@@ -489,6 +501,26 @@ hr{
 
         width:100%;
     }
+}```css id="n8v2ws"
+@media(max-width:700px){
+
+    select{
+        padding:18px;
+    }
+
+    .workerSelect{
+        min-height:65px;
+    }
+
+    #anlage{
+        min-height:65px;
+    }
+
+    #schicht{
+        min-height:65px;
+    }
 }
+```
+
 ```
 
