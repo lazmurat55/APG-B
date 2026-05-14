@@ -1,128 +1,343 @@
-/* Genel Ayarlar */
-body {
-    background: #f1f5f9;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 10px;
-    margin: 0;
+```css
+/* =========================
+   APG MODERN DARK UI
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    max-width: 600px;
-    margin: auto;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+body{
+    min-height:100vh;
+
+    font-family:'Segoe UI',sans-serif;
+
+    background:
+    radial-gradient(circle at top left,#1d4ed8 0%,transparent 25%),
+    radial-gradient(circle at bottom right,#0f172a 0%,transparent 30%),
+    linear-gradient(135deg,#020617,#0f172a,#111827);
+
+    color:white;
+
+    padding:20px;
 }
 
-/* Form Elemanları - Daha Geniş ve Belirgin */
-input, select {
-    width: 100%;
-    padding: 14px; 
-    border-radius: 10px;
-    border: 1px solid #cbd5e1;
-    font-size: 16px;
-    box-sizing: border-box;
-    margin-bottom: 5px;
+/* CONTAINER */
+
+.container{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
 }
 
-/* Fire ve Arıza Satırları - İşte Burayı Düzelttik */
-.aus-row, .stoer-row {
-    display: flex;
-    flex-direction: column; /* Mobilde alt alta gelsinler ki geniş olsunlar */
-    background: #f8fafc;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 15px;
-    position: relative;
+/* CARD */
+
+.card{
+    width:100%;
+    max-width:720px;
+
+    background:rgba(15,23,42,0.92);
+
+    border:1px solid rgba(56,189,248,0.2);
+
+    border-radius:28px;
+
+    padding:25px;
+
+    box-shadow:
+    0 0 25px rgba(56,189,248,0.12),
+    0 20px 40px rgba(0,0,0,0.5);
+
+    backdrop-filter:blur(10px);
+
+    animation:fadeIn 0.5s ease;
 }
 
-/* Seçim Kutusu ve Sayı Alanı Yan Yana (Ama Geniş) */
-.row-content {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    margin-bottom: 10px;
+/* TITLES */
+
+h1{
+    text-align:center;
+    font-size:34px;
+    color:#38bdf8;
+    margin-bottom:8px;
+    font-weight:800;
+    letter-spacing:1px;
 }
 
-/* Seçim kutusu daha çok yer kaplasın */
-.aCode, .sCode, .sGrund {
-    flex: 3; 
-    min-width: 0; /* Taşırmayı önler */
+h2{
+    color:#38bdf8;
+    margin-bottom:15px;
+    margin-top:10px;
 }
 
-/* Sayı girilen yer (Stk/Min) daha belirgin */
-.aMenge, .sMin {
-    flex: 1;
-    min-width: 80px;
-    text-align: center;
-    font-weight: bold;
-    border: 2px solid #cbd5e1; /* Daha belirgin çerçeve */
+p{
+    text-align:center;
+    color:#94a3b8;
+    margin-bottom:20px;
 }
 
-/* Silme Butonu (X) */
-.row-delete-btn {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+/* LABEL */
+
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:8px;
+
+    color:#cbd5e1;
+
+    font-size:14px;
+    font-weight:600;
 }
 
-/* Büyük Butonlar */
-button {
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
+/* GRID */
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
 }
 
-.add-btn {
-    background: #475569;
-    color: white;
+/* INPUTS */
+
+input,
+select{
+    width:100%;
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    color:white;
+
+    padding:16px;
+
+    border-radius:16px;
+
+    font-size:15px;
+
+    transition:0.3s;
 }
 
-.main-btn {
-    background: #10b981;
-    color: white;
-    font-size: 18px;
+input:focus,
+select:focus{
+    outline:none;
+
+    border-color:#38bdf8;
+
+    box-shadow:
+    0 0 0 3px rgba(56,189,248,0.12),
+    0 0 20px rgba(56,189,248,0.18);
 }
 
-/* FT Grid (3 Üstte, 3 Altta) */
-.ft-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 15px;
-    background: #f1f5f9;
-    border-radius: 10px;
+/* BUTTONS */
+
+button{
+    width:100%;
+
+    border:none;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    transition:0.3s;
+
+    margin-top:15px;
 }
 
-.ft-grid label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 14px;
+/* LOGIN BUTTON */
+
+button[onclick="loginKontrol()"]{
+    background:linear-gradient(135deg,#2563eb,#38bdf8);
+
+    color:white;
+
+    box-shadow:
+    0 10px 20px rgba(37,99,235,0.3);
 }
 
-.ft-grid input {
-    width: 25px;
-    height: 25px;
+/* MAIN BUTTON */
+
+.main-btn{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+
+    color:white;
+
+    font-size:18px;
+
+    box-shadow:
+    0 10px 25px rgba(34,197,94,0.25);
 }
 
-/* Hata Mesajı */
-.ausWarnung {
-    background: #fee2e2;
-    color: #ef4444;
-    padding: 10px;
-    border-radius: 8px;
-    margin: 5px 0;
-    font-size: 14px;
+.main-btn:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 15px 35px rgba(34,197,94,0.35);
 }
+
+/* ADD BUTTON */
+
+.add-btn{
+    background:rgba(56,189,248,0.12);
+
+    border:2px dashed #38bdf8;
+
+    color:#38bdf8;
+}
+
+.add-btn:hover{
+    background:rgba(56,189,248,0.2);
+}
+
+/* ROWS */
+
+.aus-row,
+.stoer-row,
+.worker-box,
+.artikel-box{
+
+    background:rgba(30,41,59,0.72);
+
+    border:1px solid rgba(56,189,248,0.14);
+
+    border-radius:18px;
+
+    padding:15px;
+
+    margin-top:15px;
+}
+
+/* DELETE */
+
+.delete-btn,
+.row-delete-btn{
+
+    background:linear-gradient(135deg,#ef4444,#dc2626);
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    padding:10px 14px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    width:auto;
+}
+
+/* FT GRID */
+
+.ft-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:15px;
+
+    background:rgba(15,23,42,0.75);
+
+    border:1px solid rgba(56,189,248,0.15);
+
+    padding:18px;
+
+    border-radius:18px;
+}
+
+.ft-grid label{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin:0;
+}
+
+.ft-grid input{
+
+    width:24px;
+    height:24px;
+}
+
+/* WARNING */
+
+.ausWarnung{
+
+    background:rgba(239,68,68,0.14);
+
+    border:1px solid rgba(239,68,68,0.25);
+
+    color:#fecaca;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    margin-top:10px;
+}
+
+/* LINE */
+
+hr{
+    border:none;
+    height:1px;
+
+    background:rgba(148,163,184,0.2);
+
+    margin:25px 0;
+}
+
+/* ANIMATION */
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    body{
+        padding:10px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:28px;
+    }
+
+    .card{
+        padding:18px;
+        border-radius:22px;
+    }
+}
+```
