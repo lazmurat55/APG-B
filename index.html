@@ -3,172 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APG Schichtbericht PRO</title>
-    <style>
-        :root {
-            --bg: #0f172a; --card: #1e293b; --primary: #38bdf8; --success: #22c55e;
-            --danger: #ef4444; --warning: #fbbf24; --text: #f1f5f9; --border: rgba(255, 255, 255, 0.1);
-        }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        
-        /* Ana Konteyner Genişliği Sabitlendi */
-        .container { width: 100%; max-width: 650px; background: var(--card); padding: 25px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 1px solid var(--border); box-sizing: border-box; }
-        
-        /* Üst Başlık Alanı - Genişlik Altla Aynı Yapıldı */
-        .header { text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); width: 100%; }
-        .header h1 { color: var(--primary); margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
-        
-        /* Dashboard */
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .dash-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; text-align: center; border-bottom: 4px solid var(--primary); }
-        .dash-card span { display: block; font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
-        .dash-card strong { font-size: 32px; color: #fff; }
-
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #94a3b8; font-size: 13px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border); background: #0f172a; color: #fff; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 15px; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
-        
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        /* Butonlar */
-        .btn-large { width: 100%; padding: 16px; margin-top: 10px; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; }
-        .btn-add-worker { background: rgba(56, 189, 248, 0.1); color: var(--primary); border: 2px dashed var(--primary); }
-        .btn-add-artikel { background: rgba(34, 197, 94, 0.1); color: var(--success); border: 2px dashed var(--success); }
-        .btn-action { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; border: 1px solid transparent; }
-        .btn-aus { background: rgba(251, 191, 36, 0.1); color: var(--warning); border-color: var(--warning); }
-        .btn-stoer { background: rgba(148, 163, 184, 0.1); color: #94a3b8; border-color: #94a3b8; }
-        .btn-save { background: var(--success); color: white; font-size: 18px; margin-top: 30px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3); }
-
-        .card-inner { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 18px; margin-top: 15px; border: 1px solid var(--border); position: relative; }
-        .delete-btn { position: absolute; right: 12px; top: 12px; background: none; border: none; color: var(--danger); font-size: 20px; cursor: pointer; }
-        
-        .time-tracker { margin-top: 20px; padding: 15px; background: #0f172a; border-radius: 12px; text-align: center; font-weight: bold; border: 1px solid var(--primary); color: var(--primary); }
-        .error-msg { color: var(--danger); font-size: 12px; margin-top: 5px; font-weight: bold; display: none; }
-    </style>
+    <title>Schicht B - Adler Pelzer</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-icon" href="APG.jpg">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <h1>APG SCHICHTBERICHT</h1>
-    </div>
-
-    <div class="dashboard">
-        <div class="dash-card"><span>Gutteile Gesamt</span><strong id="dashGut">0</strong></div>
-        <div class="dash-card"><span>Mitarbeiter</span><strong id="dashWorker">0</strong></div>
-    </div>
-
-    <form id="reportForm">
-        <div class="grid-2">
-            <div><label>📅 Datum</label><input type="date" id="datum"></div>
-            <div><label>⏱️ Schicht</label>
-                <select id="schicht">
-                    <option value="Frühschicht">Frühschicht</option>
-                    <option value="Spätschicht">Spätschicht</option>
-                    <option value="Nachtschicht">Nachtschicht</option>
-                </select>
-            </div>
+    <div class="container">
+        <div id="loginBox" class="card">
+            <h1>Schicht B Login</h1>
+            <p>Produktionssystem | Adler Pelzer Group</p>
+            <label>Benutzername</label>
+            <input type="text" id="username" placeholder="Dein Name">
+            <label>Passwort</label>
+            <input type="password" id="password" placeholder="Dein Passwort">
+            <button onclick="loginKontrol()" style="background:#1a2a5e; color:white;">EINLOGGEN</button>
         </div>
 
+        <div id="mainForm" style="display:none;">
+        
+<div class="topbar">
+
+    <div class="top-left">
+        <img src="APG.jpg" class="logo">
         <div>
-            <label>🏭 Anlage</label>
-            <select id="anlage" onchange="handleAnlageChange(this.value)">
-                <option value="">Anlage wählen...</option>
-                <optgroup label="PUR (Schaumanlage)">
-                    <option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option>
-                    <option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option>
-                    <option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option>
-                </optgroup>
-                <optgroup label="Spritzguss (IM/CIM)">
-                    <option value="IM1">IM 1</option><option value="IM2">IM 2</option><option value="IM3">IM 3</option>
-                    <option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="CIM1">CIM 1</option>
-                </optgroup>
-                <option value="COM">Compound Anlage</option>
-                <option value="SONST">Sonstige (Manuell)</option>
-            </select>
-            <input type="text" id="customAnlage" placeholder="Name der Anlage..." style="display:none;">
+            <h3>Adler Pelzer Group</h3>
+            <span>Production Control System</span>
+        </div>
+    </div>
+
+    <div class="top-right">
+
+        <div class="status-card">
+            <small>STATUS</small>
+            <strong>ONLINE</strong>
         </div>
 
-        <div id="workerContainer"></div>
-        <button type="button" class="btn-large btn-add-worker" onclick="addWorker()">👤 + MITARBEITER</button>
-
-        <div id="artikelContainer"></div>
-        <button type="button" class="btn-large btn-add-artikel" onclick="addArtikel()">📦 + ARTIKEL / PRODUKTION</button>
-
-        <div class="time-tracker" id="comTimerBox" style="display:none;">Compound Zeit: <span id="totalMinLabel">0</span> / 480 Min</div>
-
-        <div style="margin-top:25px; border: 1px solid var(--primary); padding:20px; border-radius:15px; background: rgba(56, 189, 248, 0.03);">
-            <label>📲 Bericht senden an:</label>
-            <select id="waRecipient">
-                <option value="MURAT">Murat Keskin</option>
-                <option value="UZUN">Herr Uzun</option>
-            </select>
+        <div class="status-card">
+            <small>SYSTEM</small>
+            <strong>SCHICHT B</strong>
         </div>
 
-        <button type="button" class="btn-large btn-save" onclick="sendReport()">SPEICHERN & SENDEN</button>
-    </form>
+    </div>
+
 </div>
 
-<script>
-    // Mevcut JS mantığı korunmuştur (workers, errorCodes, updateSummary vb.)
-    const scriptURL = "https://script.google.com/macros/s/AKfycbx55ShhJiujy6xj8lJZoDOoRh5wSpYpbPCbCNVoKnqR53gSUwsmKzSVv4ZXaihBQwwzVg/exec";
-    const NUM_MURAT = "4917623638794", NUM_UZUN = "4917660909937";
+            <div class="card">
+                <h1>Schicht B Bericht</h1>
+                <div class="grid">
+                    <div><label>Datum</label><input type="date" id="datum"></div>
+                    <div>
+                        <label>Schicht</label>
+                        <select id="schicht">
+                            <option>Frühschicht</option>
+                            <option>Spätschicht</option>
+                            <option>Nachtschicht</option>
+                        </select>
+                    </div>
+                </div>
 
-    const workers = ["Aldirmaz P.-577", "Anderwald R.-509 E", "Bayrakli F.-1377 E", "Kilic D.-1384 E", "Maafi T.-1273 E", "Besche T.-1472", "Eickhoff P.-1406", "Toth Renata-1699", "Gibba n.-1367", "Helf A.-1483", "Isbir J.-1715", "Jeyakumar S.-1698", "Kalisch T.-1451", "Keskin Mur.-517", "Kowarsch R.-484", "Nowak M.-1390", "Pähler D.-1332", "Patarcsity V.-1700", "Pulendran K.-1498", "Sahin E.-1721", "Savas S.-1360", "Schiavitelli C.-1669", "Uluyüz B.-1450", "Uzun S.-1433", "Klomrit Thanin-1070", "Garcia-Hervas Francisco-339", "Sonstige"];
-    
-    // ... (Hata kodları ve diğer fonksiyonlar aynı kalacak şekilde buraya eklenir)
-    // Yukarıda tasarım istendiği için odak tasarımda tutulmuştur.
+                <hr>
+                <h2>Mitarbeiter</h2>
+                <div id="workerContainer"></div>
+                <button type="button" id="addWorkerBtn">+ Mitarbeiter hinzufügen</button>
 
-    window.onload = () => { document.getElementById('datum').value = new Date().toISOString().split('T')[0]; };
+                <hr>
+                <label>Anlage wählen</label>
+                <select id="anlage">
+                    <option value="">Bitte wählen</option>
+                    <optgroup label="PUR Anlagen">
+                        <option>PUR1</option><option>PUR2</option><option>PUR3</option>
+                        <option>PUR4</option><option>PUR5</option><option>PUR6</option>
+                        <option>PUR7</option><option>PUR8</option><option>PUR9</option>
+                    </optgroup>
+                    <optgroup label="Spritzguss">
+                        <option>CIM1</option>
+                        <option>IM1</option><option>IM2</option><option>IM3</option>
+                        <option>IM4</option><option>IM5</option>
+                    </optgroup>
+                    <optgroup label="Compound System">
+                        <option value="COM">Compound Anlage</option>
+                    </optgroup>
+                </select>
 
-    function handleAnlageChange(val) { 
-        document.getElementById('customAnlage').style.display = (val === 'SONST') ? 'block' : 'none'; 
-        document.getElementById('comTimerBox').style.display = (val === 'COM') ? 'block' : 'none';
-        updateSummary(); 
-    }
+                <div id="ftBox" style="display:none; margin-top:20px;">
+                    <label>Formträger (FT)</label>
+                    <div class="ft-grid">
+                        <label><input type="checkbox" class="ft-check"> FT1</label>
+                        <label><input type="checkbox" class="ft-check"> FT2</label>
+                        <label><input type="checkbox" class="ft-check"> FT3</label>
+                        <label><input type="checkbox" class="ft-check"> FT4</label>
+                        <label><input type="checkbox" class="ft-check"> FT5</label>
+                        <label><input type="checkbox" class="ft-check"> FT6</label>
+                    </div>
+                </div>
 
-    function addWorker() {
-        const div = document.createElement('div'); div.className = 'card-inner';
-        div.innerHTML = `<button type="button" class="delete-btn" onclick="this.parentElement.remove(); updateSummary();">✕</button>
-            <select class="worker-select" onchange="this.nextElementSibling.style.display=(this.value==='Sonstige'?'block':'none'); updateSummary();">
-                ${workers.map(w => `<option value="${w}">${w}</option>`).join('')}
-            </select><input type="text" class="sonstige-worker" style="display:none; padding:10px; border-radius:10px; width:100%; box-sizing:border-box; background:#0f172a; color:#fff; border:1px solid var(--primary);" placeholder="Name...">`;
-        document.getElementById('workerContainer').appendChild(div); updateSummary();
-    }
+                <div id="gesamtDauerBox" style="display:none; margin-top:20px;">
+                    <label>Gesamt Arbeitszeit (Minuten)</label>
+                    <input type="number" id="gesamtDauerInput" value="480">
+                </div>
 
-    function addArtikel() {
-        const anlage = document.getElementById('anlage').value; if(!anlage) return alert("Anlage wählen!");
-        const unit = (anlage === 'COM') ? 'Kg' : 'Stk';
-        const div = document.createElement('div'); div.className = 'card-inner artikel-box-main';
-        div.innerHTML = `<button type="button" class="delete-btn" onclick="this.parentElement.remove(); updateSummary();">✕</button>
-            <label>Artikel / Produkt</label><input type="text" class="art-name" placeholder="z.B. BMW X5">
-            <div class="grid-2">
-                <div class="dur-box" style="${anlage==='COM' ? '':'display:none;'}"><label>Dauer (Min)</label><input type="number" class="art-time" oninput="updateSummary()" value="0"></div>
-                <div><label>Gut (${unit})</label><input type="number" class="art-gut" oninput="updateSummary()"></div>
+                <hr>
+                <h2>Produktion</h2>
+                <div id="artikelContainer"></div>
+                <button type="button" id="addArtikelBtn">+ Artikel hinzufügen</button>
+
+                <hr>
+                <label>WhatsApp Empfänger</label>
+                <select id="waEmpfaenger">
+                    <option value="4917623638794">Herr Keskin Murat</option>
+                    <option value="4917660909937">Herr Uzun</option>
+                </select>
+
+                <button onclick="speichern()" class="main-btn">SPEICHERN & SENDEN</button>
             </div>
-            <div class="grid-2">
-                <div style="grid-column: span 2;"><label>Ausschuss Gesamt (${unit})</label><input type="number" class="art-aus-total" oninput="updateSummary()"></div>
-            </div>
-            <div class="extra-rows-container"></div>
-            <div style="display:flex; gap:8px; margin-top:12px;">
-                <button type="button" class="btn-action btn-aus" onclick="alert('Ausschuss Grund eklendi')">⚠️ + Ausschuss</button>
-                <button type="button" class="btn-action btn-stoer" onclick="alert('Störung eklendi')">⚙️ + Störung</button>
-            </div>`;
-        document.getElementById('artikelContainer').appendChild(div);
-        updateSummary();
-    }
+        </div>
+    </div>
 
-    function updateSummary() {
-        let tg = 0;
-        document.querySelectorAll('.art-gut').forEach(i => tg += Number(i.value) || 0);
-        document.getElementById('dashGut').innerText = tg;
-        document.getElementById('dashWorker').innerText = document.querySelectorAll('.worker-select').length;
-    }
-
-    async function sendReport() {
-        // ... Mevcut sendReport fonksiyonun buraya eklenecek ...
-        alert("Bericht wird gesendet...");
-    }
-</script>
+    <script src="app.js"></script>
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js");
+        }
+    </script>
 </body>
 </html>
